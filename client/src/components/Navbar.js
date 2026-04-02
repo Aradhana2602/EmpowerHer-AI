@@ -16,7 +16,7 @@ function Navbar({ currentPage, onPageChange }) {
               className={`navbar-link ${currentPage === 'home' ? 'active' : ''}`}
               onClick={() => onPageChange('home')}
             >
-              📊 Dashboard
+              Dashboard
             </button>
           </li>
 
@@ -25,7 +25,7 @@ function Navbar({ currentPage, onPageChange }) {
               className={`navbar-link ${currentPage === 'copilot' ? 'active' : ''}`}
               onClick={() => onPageChange('copilot')}
             >
-              🛡️ BioBoundary AI
+              BioBoundary AI
             </button>
           </li>
 
@@ -37,7 +37,7 @@ function Navbar({ currentPage, onPageChange }) {
               rel="noopener noreferrer"
               className="navbar-link"
             >
-              🤖 AI Analysis
+              AI Analysis
             </a>
           </li>
         </ul>
