@@ -60,6 +60,9 @@ class InsightsService {
       cycleInfo
     );
 
+    // Generate career coaching insights
+    const careerCoaching = this.generateCareerCoaching(logs, cycleInfo, avgEnergyLevel, avgProductivity);
+
     return {
       totalDaysLogged: logs.length,
       avgEnergyLevel: parseFloat(avgEnergyLevel.toFixed(2)),
@@ -69,6 +72,7 @@ class InsightsService {
       symptomFrequency,
       moodFrequency,
       recommendations,
+      careerCoaching,
       cycleInfo: cycleInfo || null,
       analysisDate: new Date().toISOString()
     };
