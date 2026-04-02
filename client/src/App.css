@@ -2,64 +2,75 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
 }
 
 .app-container {
   flex: 1;
-  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFE3E3 100%);
   padding: 20px;
 }
 
 .app-header {
   text-align: center;
-  color: white;
+  color: #2b2b2b;
   margin-bottom: 40px;
   animation: slideDown 0.6s ease-out;
 }
 
 .app-header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FF477E 0%, #FF7096 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  text-shadow: 0 4px 15px rgba(255, 71, 126, 0.15);
 }
 
 .app-header p {
-  font-size: 1.1rem;
-  opacity: 0.95;
+  font-size: 1.2rem;
+  color: #6c757d;
   margin: 0;
+  font-weight: 400;
 }
 
 .cycle-info-badge {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 12px 20px;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 12px 24px;
+  border-radius: 30px;
   font-size: 0.95rem;
-  margin-top: 15px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin: 20px auto 0;
+  width: max-content;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  font-weight: 500;
+  font-weight: 600;
+  color: #FF477E;
+  box-shadow: 0 8px 30px rgba(255, 71, 126, 0.08);
 }
 
 .edit-cycle-btn {
-  background: #0ea5e9;
+  background: linear-gradient(135deg, #FF477E 0%, #FF7096 100%);
   color: white;
   border: none;
-  padding: 4px 12px;
-  border-radius: 15px;
+  padding: 6px 16px;
+  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-left: 5px;
+  margin-left: 8px;
+  box-shadow: 0 4px 12px rgba(255, 71, 126, 0.2);
 }
 
 .edit-cycle-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 71, 126, 0.3);
 }
 
 .app-main {
@@ -77,98 +88,117 @@
 .center-panel {
   flex: 1;
   max-width: 600px;
-  background: white;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 16px 40px rgba(255, 71, 126, 0.06);
   animation: slideUp 0.6s ease-out;
 }
 
 .date-header {
   font-size: 1.8rem;
-  color: #333;
+  color: #2b2b2b;
   margin-bottom: 30px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  font-weight: 700;
 }
 
 .logged-badge {
-  background: #4caf50;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  padding: 4px 12px;
+  padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: bold;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
 .insights-btn {
   width: 100%;
-  padding: 15px;
+  padding: 16px;
   margin-top: 30px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(135deg, #FF477E 0%, #FF7096 100%);
   color: white;
   border: none;
-  border-radius: 15px;
+  border-radius: 16px;
   font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 24px rgba(255, 71, 126, 0.25);
+  font-family: inherit;
 }
 
 .insights-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(14, 165, 233, 0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(255, 71, 126, 0.35);
 }
 
 .insights-btn:disabled {
-  opacity: 0.6;
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
   cursor: not-allowed;
+  transform: none;
 }
 
 .cycle-phase-card {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-top: 20px;
-  border-left: 5px solid #0ea5e9;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 24px;
+  margin-top: 24px;
+  border-left: 6px solid #FF7096;
+  border-top: 1px solid rgba(255, 255, 255, 0.8);
+  border-right: 1px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 12px 30px rgba(255, 71, 126, 0.08);
   animation: slideUp 0.6s ease-out;
 }
 
 .cycle-phase-card h3 {
   margin: 0 0 10px 0;
-  color: #333;
-  font-size: 1rem;
+  color: #64748b;
+  font-size: 1.05rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .phase-name {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #0ea5e9;
-  margin: 10px 0 5px 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FF477E 0%, #FF7096 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  margin: 5px 0 10px 0;
 }
 
 .phase-energy {
-  color: #666;
-  font-size: 0.9rem;
+  color: #FF477E;
+  font-size: 0.95rem;
+  font-weight: 600;
   margin: 0;
-  padding: 8px;
-  background: #f5f7ff;
-  border-radius: 8px;
-  text-align: center;
+  padding: 10px 14px;
+  background: rgba(255, 112, 150, 0.1);
+  border-radius: 12px;
+  display: inline-block;
 }
 
 .period-badge {
-  background: #ff6b6b;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  padding: 4px 12px;
+  padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: bold;
-  margin-left: 8px;
+  margin-left: 12px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
 @keyframes slideDown {
@@ -213,5 +243,5 @@
 .streamlit-container {
   flex: 1;
   overflow: hidden;
-  background: white;
+  background: #FFF5F5;
 }
