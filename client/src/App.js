@@ -6,7 +6,9 @@ import InsightsPanel from './components/InsightsPanel';
 import CycleSetup from './components/CycleSetup';
 import NotificationsPanel from './components/NotificationsPanel';
 import Navbar from './components/Navbar';
+import CopilotPanel from './components/CopilotPanel';
 import './App.css';
+
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -206,6 +208,20 @@ function App() {
             title="AI Analysis"
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
           />
+        </div>
+      </div>
+    );
+  }
+
+  // Copilot page
+  if (currentPage === 'copilot') {
+    return (
+      <div className="app-wrapper">
+        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <div className="app-container">
+          <main className="app-main" style={{ display: 'block' }}>
+            <CopilotPanel cyclePhase={cyclePhase} />
+          </main>
         </div>
       </div>
     );

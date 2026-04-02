@@ -21,6 +21,16 @@ function Navbar({ currentPage, onPageChange }) {
           </li>
 
           <li className="navbar-item">
+            <button
+              className={`navbar-link ${currentPage === 'copilot' ? 'active' : ''}`}
+              onClick={() => onPageChange('copilot')}
+            >
+              🚀 Career Copilot
+            </button>
+          </li>
+
+
+          <li className="navbar-item">
             <a
               href="https://ecetpgml2gtkkxarnyfuvp.streamlit.app/"
               target="_blank"
