@@ -132,6 +132,171 @@ class InsightsService {
 
     return recommendations.slice(0, 5); // Return top 5 recommendations
   }
+
+  static generateCareerCoaching(logs, cycleInfo, avgEnergy, avgProductivity) {
+    const coaching = {
+      optimalWorkTimes: [],
+      careerPhases: {},
+      productivityPatterns: [],
+      recommendations: []
+    };
+
+    if (!cycleInfo || !cycleInfo.isConfigured || logs.length < 7) {
+      return coaching;
+    }
+
+    // Analyze productivity by cycle phase
+    const phaseProductivity = {};
+    const phaseEnergy = {};
+
+    logs.forEach(log => {
+      // Calculate which cycle phase this log falls into
+      const logDate = new Date(log.date);
+      const cycleStart = new Date(cycleInfo.lastPeriodStartDate);
+      const daysSinceCycleStart = Math.floor((logDate - cycleStart) / (1000 * 60 * 60 * 24)) % cycleInfo.cycleLength;
+
+      let phase;
+      if (daysSinceCycleStart < 5) {
+        phase = 'menstrual';
+      } else if (daysSinceCycleStart < 14) {
+        phase = 'follicular';
+      } else if (daysSinceCycleStart < 16) {
+        phase = 'ovulation';
+      } else {
+        phase = 'luteal';
+      }
+
+      if (!phaseProductivity[phase]) {
+        phaseProductivity[phase] = [];
+        phaseEnergy[phase] = [];
+      }
+      phaseProductivity[phase].push(log.productivityRating);
+      phaseEnergy[phase].push(log.energyLevel);
+    });
+
+    // Calculate averages for each phase
+    Object.keys(phaseProductivity).forEach(phase => {
+      const prodArray = phaseProductivity[phase];
+      const energyArray = phaseEnergy[phase];
+      
+      if (prodArray.length > 0 && energyArray.length > 0) {
+        coaching.careerPhases[phase] = {
+          avgProductivity: parseFloat((prodArray.reduce((a, b) => a + b, 0) / prodArray.length).toFixed(1)),
+          avgEnergy: parseFloat((energyArray.reduce((a, b) => a + b, 0) / energyArray.length).toFixed(1)),
+          description: this.getPhaseDescription(phase),
+          optimalActivities: this.getOptimalActivities(phase, 
+            prodArray.reduce((a, b) => a + b, 0) / prodArray.length,
+            energyArray.reduce((a, b) => a + b, 0) / energyArray.length)
+        };
+      }
+    });
+
+    // Generate work timing recommendations
+    const bestPhase = Object.entries(coaching.careerPhases)
+      .sort(([,a], [,b]) => b.avgProductivity - a.avgProductivity)[0];
+
+    if (bestPhase) {
+      coaching.optimalWorkTimes.push({
+        phase: bestPhase[0],
+        activity: 'High-stakes presentations',
+        reasoning: `Your productivity peaks during ${bestPhase[0]} phase`
+      });
+    }
+
+    const highEnergyPhase = Object.entries(coaching.careerPhases)
+      .sort(([,a], [,b]) => b.avgEnergy - a.avgEnergy)[0];
+
+    if (highEnergyPhase) {
+      coaching.optimalWorkTimes.push({
+        phase: highEnergyPhase[0],
+        activity: 'Networking events',
+        reasoning: `Maximum energy during ${highEnergyPhase[0]} phase`
+      });
+    }
+
+    // Generate productivity patterns
+    if (avgProductivity >= 4) {
+      coaching.productivityPatterns.push('🌟 High performer! Schedule important deadlines during your peak phases.');
+    } else if (avgProductivity >= 3) {
+      coaching.productivityPatterns.push('📈 Steady performer. Focus on consistent routines and energy management.');
+    } else {
+      coaching.productivityPatterns.push('💪 Growth opportunity. Use cycle awareness to optimize your schedule.');
+    }
+
+    // Generate career recommendations
+    coaching.recommendations = this.generateCareerRecommendations(coaching.careerPhases, avgProductivity, avgEnergy);
+
+    return coaching;
+  }
+
+  static getPhaseDescription(phase) {
+    const descriptions = {
+      menstrual: 'Rest and recovery phase',
+      follicular: 'Rising energy and creativity',
+      ovulation: 'Peak energy and social confidence',
+      luteal: 'Introspective and detail-oriented'
+    };
+    return descriptions[phase] || phase;
+  }
+
+  static getOptimalActivities(phase, productivity, energy) {
+    const activities = {
+      menstrual: ['Strategic planning', 'Administrative tasks', 'Team coordination'],
+      follicular: ['New project starts', 'Creative brainstorming', 'Learning sessions'],
+      ovulation: ['Client presentations', 'Networking events', 'Leadership meetings'],
+      luteal: ['Detailed analysis', 'Quality assurance', 'Project completion']
+    };
+
+    if (productivity >= 4 && energy >= 4) {
+      return activities[phase] || [];
+    } else if (productivity >= 3 || energy >= 3) {
+      return activities[phase]?.slice(0, 2) || [];
+    } else {
+      return ['Light administrative work', 'Planning and organization'];
+    }
+  }
+
+  static generateCareerRecommendations(careerPhases, avgProductivity, avgEnergy) {
+    const recommendations = [];
+
+    // Find best performing phase
+    const bestPhase = Object.entries(careerPhases)
+      .sort(([,a], [,b]) => b.avgProductivity - a.avgProductivity)[0];
+
+    if (bestPhase) {
+      const [phase, data] = bestPhase;
+      recommendations.push(`🎯 Schedule important presentations during your ${phase} phase when productivity averages ${data.avgProductivity}/5.`);
+    }
+
+    // Energy-based career advice
+    if (avgEnergy >= 4) {
+      recommendations.push('⚡ High energy levels! Consider leadership roles or high-visibility projects.');
+    } else if (avgEnergy >= 3) {
+      recommendations.push('🔋 Good energy foundation. Focus on roles with flexible pacing.');
+    } else {
+      recommendations.push('💪 Build energy through work-life balance. Consider roles with autonomy.');
+    }
+
+    // Productivity-based career advice
+    if (avgProductivity >= 4) {
+      recommendations.push('📊 Peak performer! Leverage your cycle awareness for career advancement.');
+    } else if (avgProductivity >= 3) {
+      recommendations.push('📈 Steady contributor. Use cycle tracking to optimize work patterns.');
+    } else {
+      recommendations.push('🌱 Growth mindset. Your data shows opportunities for optimization.');
+    }
+
+    // Phase-specific advice
+    if (careerPhases.ovulation && careerPhases.ovulation.avgEnergy >= 4) {
+      recommendations.push('🌟 Your ovulation phase shows peak energy - perfect for client-facing work!');
+    }
+
+    if (careerPhases.luteal && careerPhases.luteal.avgProductivity >= 4) {
+      recommendations.push('🧠 Strong luteal phase productivity - ideal for detailed analytical work.');
+    }
+
+    return recommendations.slice(0, 4);
+  }
 }
 
 module.exports = InsightsService;

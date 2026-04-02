@@ -7,6 +7,7 @@ import CycleSetup from './components/CycleSetup';
 import NotificationsPanel from './components/NotificationsPanel';
 import Navbar from './components/Navbar';
 import CopilotPanel from './components/CopilotPanel';
+import BottomNav from './components/BottomNav';
 import './App.css';
 
 
@@ -174,6 +175,51 @@ function App() {
     return logs.find(log => log.date === dateStr);
   };
 
+  const getMoodStreak = () => {
+    if (!logs.length) return 0;
+    const sorted = [...logs].sort((a, b) => new Date(b.date) - new Date(a.date));
+    let streak = 0;
+    let prevDate = new Date(sorted[0].date);
+    for (const log of sorted) {
+      const current = new Date(log.date);
+      if (streak === 0 || (prevDate - current) / (1000 * 60 * 60 * 24) === 1) {
+        streak += 1;
+        prevDate = current;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
+  const getNextPeriodDate = () => {
+    if (!predictedPeriodDays.length) return null;
+    const now = new Date();
+    const future = predictedPeriodDays
+      .map(d => new Date(d))
+      .filter(d => d >= now)
+      .sort((a, b) => a - b);
+    return future.length ? future[0] : new Date(predictedPeriodDays[0]);
+  };
+
+  const getDaysLeftToPeriod = () => {
+    const next = getNextPeriodDate();
+    if (!next) return null;
+    const today = new Date();
+    const diff = Math.ceil((next - today) / (1000 * 60 * 60 * 24));
+    return diff >= 0 ? diff : 0;
+  };
+
+  const getCycleProgress = () => {
+    if (!cycleInfo?.cycleLength) return 0;
+    const start = new Date(cycleInfo.lastPeriodStartDate);
+    const today = new Date();
+
+    const daysSince = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+    const progress = ((daysSince % cycleInfo.cycleLength) / cycleInfo.cycleLength) * 100;
+    return Math.max(0, Math.min(progress, 100));
+  };
+
   if (showCycleSetup) {
     return (
       <div className="app-wrapper">
@@ -235,8 +281,48 @@ function App() {
         <NotificationsPanel />
         
         <header className="app-header">
-          <h1>📊 Daily Logging System</h1>
-          <p>Track your energy, mood, and cycle patterns for personalized insights</p>
+          <div className="hero-card">
+            <div className="hero-card-top">
+              <div>
+                <p className="hero-title">Keep Track of your Periods</p>
+                <h1>Hey, {cycleInfo?.userName || 'User'}</h1>
+                <p className="hero-subtitle">Your personal cycle+workflow dashboard</p>
+              </div>
+              <div className="ring-widget">
+                <div className="ring-outer" style={{ background: `conic-gradient(#f43f5e 0 ${getCycleProgress()}%, #fca5a5 ${getCycleProgress()}% 100%)` }}>
+                  <div className="ring-inner">
+                    <span className="ring-day">{cyclePhase ? `Day ${cyclePhase.dayInPhase + 1}` : 'Day 1'}</span>
+                    <span className="ring-phase">{cyclePhase ? `${cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)}` : 'Menstrual'}</span>
+                  </div>
+                </div>
+                <p className="ring-note">Ovulation window in {cyclePhase ? `${Math.max(0, 14 - cyclePhase.dayInPhase)} days` : '9 days'}</p>
+                <p className="ring-progress">Cycle progress: {getCycleProgress().toFixed(0)}%</p>
+              </div>
+            </div>
+
+            <div className="hero-secondary">
+              <button className="hero-btn phase-pill">Period</button>
+              <button className="hero-btn phase-pill">Pre-ovulation</button>
+              <button className="hero-btn phase-pill">Ovulation</button>
+              <button className="hero-btn phase-pill">Luteal</button>
+            </div>
+          </div>
+
+          <div className="quick-stats">
+            <div className="stat-card">
+              <h4>Next period</h4>
+              <p>{getNextPeriodDate() ? new Date(getNextPeriodDate()).toLocaleDateString() : 'Unknown'}</p>
+            </div>
+            <div className="stat-card">
+              <h4>Days left</h4>
+              <p>{getDaysLeftToPeriod() ?? '--'}</p>
+            </div>
+            <div className="stat-card">
+              <h4>Mood streak</h4>
+              <p>{getMoodStreak()} days</p>
+            </div>
+          </div>
+
           {cycleInfo?.isConfigured && (
             <div className="cycle-info-badge">
               🔄 Cycle Tracking Active • {cycleInfo.cycleLength}-day cycle
@@ -301,6 +387,7 @@ function App() {
             )}
           </div>
         </main>
+        <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
       </div>
     </div>
   );

@@ -285,6 +285,153 @@
   to { opacity: 1; }
 }
 
+.insight-card.career { background: #dbeafe; border: none; }
+
+.career-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.phase-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.phase-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e40af;
+  margin: 0;
+}
+
+.phase-metrics {
+  display: flex;
+  gap: 12px;
+}
+
+.metric {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.phase-description {
+  color: #475569;
+  font-size: 0.95rem;
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+.optimal-activities {
+  margin-top: 12px;
+}
+
+.activity-label {
+  font-weight: 700;
+  color: #334155;
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+}
+
+.optimal-activities ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.optimal-activities li {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.career-recommendations {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(251, 207, 232, 0.3);
+}
+
+.career-recommendations h4 {
+  font-size: 1.2rem;
+  color: #1e293b;
+  margin-bottom: 16px;
+  font-weight: 800;
+}
+
+.recommendation-card.career-rec {
+  border-left-color: #3b82f6;
+}
+
+.work-timing {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(251, 207, 232, 0.3);
+}
+
+.work-timing h4 {
+  font-size: 1.2rem;
+  color: #1e293b;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.timing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.timing-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  text-align: center;
+}
+
+.timing-card h5 {
+  font-size: 1.1rem;
+  color: #1e40af;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.phase-timing {
+  color: #3b82f6;
+  font-weight: 700;
+  margin: 8px 0;
+  font-size: 0.95rem;
+}
+
+.timing-reason {
+  color: #475569;
+  font-size: 0.9rem;
+  margin: 8px 0 0 0;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .insights-grid { grid-template-columns: 1fr; }
+  .timing-grid { grid-template-columns: 1fr; }
+  .phase-header { flex-direction: column; align-items: flex-start; gap: 8px; }
 }

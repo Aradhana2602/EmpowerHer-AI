@@ -115,6 +115,34 @@ function InsightsPanel({ insights, cycleInfo, onBack }) {
             </div>
           </div>
         )}
+
+        {insights.careerCoaching && insights.careerCoaching.careerPhases && Object.keys(insights.careerCoaching.careerPhases).length > 0 && (
+          <div className="insight-card career">
+            <h3>💼 Career Coaching</h3>
+            <div className="career-phases">
+              {Object.entries(insights.careerCoaching.careerPhases).map(([phase, data]) => (
+                <div key={phase} className="phase-card">
+                  <div className="phase-header">
+                    <h4 className="phase-name">{phase.charAt(0).toUpperCase() + phase.slice(1)} Phase</h4>
+                    <div className="phase-metrics">
+                      <span className="metric">⚡ {data.avgEnergy}/5</span>
+                      <span className="metric">📈 {data.avgProductivity}/5</span>
+                    </div>
+                  </div>
+                  <p className="phase-description">{data.description}</p>
+                  <div className="optimal-activities">
+                    <p className="activity-label">Best for:</p>
+                    <ul>
+                      {data.optimalActivities.map((activity, idx) => (
+                        <li key={idx}>{activity}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="recommendations-section">
@@ -130,6 +158,34 @@ function InsightsPanel({ insights, cycleInfo, onBack }) {
             <p className="no-data">Keep logging to get personalized recommendations!</p>
           )}
         </div>
+
+        {insights.careerCoaching && insights.careerCoaching.recommendations && insights.careerCoaching.recommendations.length > 0 && (
+          <div className="career-recommendations">
+            <h4>💼 Career Optimization Tips</h4>
+            <div className="recommendations">
+              {insights.careerCoaching.recommendations.map((rec, index) => (
+                <div key={`career-${index}`} className="recommendation-card career-rec">
+                  <p>{rec}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {insights.careerCoaching && insights.careerCoaching.optimalWorkTimes && insights.careerCoaching.optimalWorkTimes.length > 0 && (
+          <div className="work-timing">
+            <h4>⏰ Optimal Work Timing</h4>
+            <div className="timing-grid">
+              {insights.careerCoaching.optimalWorkTimes.map((timing, index) => (
+                <div key={`timing-${index}`} className="timing-card">
+                  <h5>{timing.activity}</h5>
+                  <p className="phase-timing">{timing.phase.charAt(0).toUpperCase() + timing.phase.slice(1)} Phase</p>
+                  <p className="timing-reason">{timing.reasoning}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="insights-summary">
@@ -141,6 +197,15 @@ function InsightsPanel({ insights, cycleInfo, onBack }) {
 
 function getMoodColor(mood) {
   const colors = {
+    calm: '#6bcf7f',
+    happy: '#9ccc65',
+    anxious: '#ffd93d',
+    sad: '#ff9800',
+    angry: '#ff6b6b',
+    sleepy: '#a855f7',
+    distracted: '#ff6b9d',
+    confused: '#64748b',
+    // Legacy support
     great: '#6bcf7f',
     good: '#9ccc65',
     neutral: '#ffd93d',
