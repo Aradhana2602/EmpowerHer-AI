@@ -1,12 +1,11 @@
 .navbar {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
+  background: #ffffff;
   padding: 0;
-  box-shadow: 0 4px 30px rgba(255, 71, 126, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid #f8fafc;
 }
 
 .navbar-container {
@@ -28,22 +27,20 @@
 }
 
 .logo-icon {
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 
 .logo-text {
-  font-size: 1.4rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #FF477E 0%, #FF7096 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1e293b;
   letter-spacing: 0.5px;
 }
 
 .navbar-menu {
   display: flex;
   list-style: none;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
   padding: 0;
 }
@@ -57,28 +54,27 @@
   background: none;
   border: none;
   color: #64748b;
-  font-size: 1.05rem;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 8px;
   text-decoration: none;
+  font-family: inherit;
 }
 
 .navbar-link:hover {
-  background: rgba(255, 71, 126, 0.08);
-  color: #FF477E;
-  transform: translateY(-2px);
+  background: #f8fafc;
+  color: #334155;
 }
 
 .navbar-link.active {
-  background: rgba(255, 71, 126, 0.12);
-  color: #FF477E;
-  font-weight: 700;
+  background: #fbcfe8;
+  color: #9d174d;
 }
 
 /* Mobile responsiveness */
@@ -87,10 +83,10 @@
     padding: 0 15px;
   }
   .logo-text {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
   .navbar-link {
     padding: 8px 12px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 }
