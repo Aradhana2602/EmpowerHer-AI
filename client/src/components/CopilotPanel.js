@@ -53,8 +53,8 @@ function CopilotPanel({ cyclePhase }) {
   return (
     <div className="copilot-container">
       <div className="copilot-header">
-        <h2>🚀 Career Copilot</h2>
-        <p>Your AI assistant for syncing professional demands with your biological rhythms.</p>
+        <h2>🛡️ BioBoundary AI</h2>
+        <p>Your AI assistant for protecting your energy and setting biology-aligned workplace boundaries.</p>
       </div>
 
       <div className="conflict-card">

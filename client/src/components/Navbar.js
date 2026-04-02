@@ -6,8 +6,8 @@ function Navbar({ currentPage, onPageChange }) {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
-          <span className="logo-icon">🧠</span>
-          <span className="logo-text">AI Second Brain</span>
+          <span className="logo-icon">🩸</span>
+          <span className="logo-text">Periodically</span>
         </div>
         
         <ul className="navbar-menu">
@@ -25,7 +25,7 @@ function Navbar({ currentPage, onPageChange }) {
               className={`navbar-link ${currentPage === 'copilot' ? 'active' : ''}`}
               onClick={() => onPageChange('copilot')}
             >
-              🚀 Career Copilot
+              🛡️ BioBoundary AI
             </button>
           </li>
 
