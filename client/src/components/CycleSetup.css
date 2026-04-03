@@ -1,11 +1,11 @@
 .cycle-setup-form {
-  max-width: 600px;
+  max-width: 650px;
   margin: 0 auto;
-  background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.6s ease-out;
+  background: #ffffff;
+  border-radius: 36px;
+  padding: 48px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+  animation: slideUp 0.6s ease;
 }
 
 .setup-info {
@@ -14,15 +14,17 @@
 }
 
 .setup-info h2 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 2.2rem;
+  color: #1e293b;
+  margin-bottom: 12px;
+  font-weight: 800;
 }
 
 .setup-info p {
-  font-size: 1.1rem;
-  color: #666;
+  font-size: 1.15rem;
+  color: #64748b;
   margin: 0;
+  font-weight: 600;
 }
 
 .form-section {
@@ -30,9 +32,9 @@
 }
 
 .form-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1e293b;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -40,131 +42,122 @@
 }
 
 .form-hint {
-  color: #999;
-  font-size: 0.9rem;
-  margin: 5px 0 12px 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin: 5px 0 16px 0;
   font-style: italic;
 }
 
 .date-input {
   width: 100%;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  padding: 16px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  font-size: 1.05rem;
+  transition: all 0.2s ease;
   font-family: inherit;
+  color: #334155;
+  background: #f8fafc;
+  font-weight: 600;
 }
 
 .date-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #ffffff;
+  border-color: #fbcfe8;
+  box-shadow: 0 0 0 3px #fbcfe8;
 }
 
 .slider {
   width: 100%;
-  height: 8px;
-  border-radius: 5px;
-  background: linear-gradient(to right, #ff6b6b, #ffd93d, #6bcf7f);
+  height: 12px;
+  border-radius: 10px;
+  background: #f1f5f9;
   outline: none;
   -webkit-appearance: none;
-  margin: 15px 0 8px 0;
+  margin: 20px 0 10px 0;
 }
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: white;
-  border: 3px solid #667eea;
+  border: 4px solid #c026d3;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: scale(1.15);
 }
 
 .slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: white;
-  border: 3px solid #667eea;
+  border: 4px solid #c026d3;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .slider::-moz-range-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: scale(1.15);
 }
 
 .slider-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
-  color: #999;
+  font-size: 0.95rem;
+  color: #94a3b8;
   padding: 0 5px;
+  font-weight: 700;
 }
 
 .cycle-info-display {
-  background: #f5f7ff;
-  border-radius: 15px;
-  padding: 25px;
-  margin: 30px 0;
-  border-left: 5px solid #667eea;
+  background: #f8fafc;
+  border-radius: 24px;
+  padding: 30px;
+  margin: 40px 0;
 }
 
 .phase-info h4,
 .benefits h4 {
-  color: #333;
+  color: #1e293b;
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 800;
 }
 
 .phase-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  color: white;
-  font-weight: 500;
+  padding: 14px 20px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  color: #1e293b;
+  font-weight: 700;
 }
 
-.phase-item.menstrual {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
-}
-
-.phase-item.follicular {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.phase-item.ovulation {
-  background: linear-gradient(135deg, #ffd93d 0%, #ffb300 100%);
-  color: #333;
-}
-
-.phase-item.luteal {
-  background: linear-gradient(135deg, #6bcf7f 0%, #4caf50 100%);
-}
+.phase-item.menstrual { background: #ffe4e6; }
+.phase-item.follicular { background: #f3e8ff; }
+.phase-item.ovulation { background: #fef3c7; }
+.phase-item.luteal { background: #dcfce7; }
 
 .phase-name {
-  font-weight: 600;
+  font-size: 1.05rem;
 }
 
 .phase-duration {
-  font-size: 0.9rem;
-  opacity: 0.9;
+  font-size: 0.95rem;
+  color: #475569;
 }
 
 .benefits ul {
@@ -174,57 +167,57 @@
 }
 
 .benefits li {
-  padding: 8px 0;
-  color: #555;
-  font-size: 0.95rem;
+  padding: 10px 0;
+  color: #475569;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 600;
 }
 
 .benefits li:before {
-  content: "✓ ";
-  color: #4caf50;
-  font-weight: bold;
-  margin-right: 8px;
+  content: "✨";
+  font-size: 1rem;
+  margin-top: 2px;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  padding: 18px;
+  background: linear-gradient(135deg, #fbcfe8 0%, #e9d5ff 100%);
+  color: #4c1d95;
   border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  border-radius: 24px;
+  font-size: 1.2rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-  margin-top: 20px;
+  transition: all 0.2s ease;
+  margin-top: 30px;
+  font-family: inherit;
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+  filter: brightness(0.95);
 }
 
 .submit-btn:disabled {
-  opacity: 0.7;
+  background: #f1f5f9;
+  color: #94a3b8;
   cursor: not-allowed;
+  transform: none;
 }
 
 .privacy-note {
   text-align: center;
-  color: #999;
-  font-size: 0.85rem;
-  margin-top: 15px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-top: 20px;
+  font-weight: 600;
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }

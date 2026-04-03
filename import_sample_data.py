@@ -14,15 +14,15 @@ print("📥 Importing sample data into database...\n")
 # Map CSV columns to database columns
 for idx, row in df.iterrows():
     try:
-        # Extract first 3 characters of mood for the mood column (great/good/neutral/low/irritable)
-        mood_value = 'neutral'  # default
-        energy = row['energy']
-        if energy >= 4 and row['mood'] >= 4:
-            mood_value = 'great'
-        elif energy >= 3 and row['mood'] >= 3:
-            mood_value = 'good'
-        elif row['mood'] <= 2:
-            mood_value = 'low'
+        # Map numeric mood to new mood values
+        mood_mapping = {
+            5: 'happy',
+            4: 'calm',
+            3: 'neutral',  # fallback for old data
+            2: 'tired',    # fallback for old data
+            1: 'sad'       # fallback for old data
+        }
+        mood_value = mood_mapping.get(int(row['mood']), 'calm')  # default to calm
         
         query = """
         INSERT OR REPLACE INTO logs 
@@ -32,7 +32,7 @@ for idx, row in df.iterrows():
         cursor.execute(query, (
             row['date'],
             int(row['energy']),
-            int(row['mood']),
+            int(row['mood']),  # Using mood as productivity rating for demo data
             mood_value,
             row['symptoms'],
             row['notes'],

@@ -8,6 +8,7 @@ const logsRouter = require('./routes/logs');
 const insightsRouter = require('./routes/insights');
 const cycleRouter = require('./routes/cycle');
 const notificationsRouter = require('./routes/notifications');
+const copilotRouter = require('./routes/copilot');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,6 +26,7 @@ app.use('/api/logs', logsRouter);
 app.use('/api/insights', insightsRouter);
 app.use('/api/cycle', cycleRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/copilot', copilotRouter);
 
 // Health check
 app.get('/health', (req, res) => {

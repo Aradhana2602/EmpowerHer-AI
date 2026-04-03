@@ -28,7 +28,7 @@ function initializeDB() {
       date TEXT UNIQUE NOT NULL,
       energyLevel INTEGER CHECK(energyLevel >= 1 AND energyLevel <= 5),
       productivityRating INTEGER CHECK(productivityRating >= 1 AND productivityRating <= 5),
-      mood TEXT CHECK(mood IN ('great', 'good', 'neutral', 'low', 'irritable')),
+      mood TEXT CHECK(mood IN ('calm', 'happy', 'anxious', 'sad', 'angry', 'sleepy', 'distracted', 'confused')),
       symptoms TEXT,
       notes TEXT,
       isPeriodDay INTEGER DEFAULT 0,

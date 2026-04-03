@@ -5,7 +5,7 @@ function LoggingForm({ onSubmit, loading, initialData, cyclePhase }) {
   const [formData, setFormData] = useState({
     energyLevel: 3,
     productivityRating: 3,
-    mood: 'neutral',
+    mood: 'happy',
     symptoms: [],
     notes: ''
   });
@@ -15,145 +15,163 @@ function LoggingForm({ onSubmit, loading, initialData, cyclePhase }) {
       setFormData({
         energyLevel: initialData.energyLevel || 3,
         productivityRating: initialData.productivityRating || 3,
-        mood: initialData.mood || 'neutral',
+        mood: initialData.mood || 'happy',
         symptoms: initialData.symptoms || [],
         notes: initialData.notes || ''
       });
     }
   }, [initialData]);
 
-  const symptoms = ['cramps', 'fatigue', 'headache', 'bloating', 'mood swings', 'brain fog'];
-  const moods = ['great', 'good', 'neutral', 'low', 'irritable'];
+  const symptomsList = [
+    'Everything is Fine', 
+    'Cramps', 
+    'Tender Breasts', 
+    'Headache', 
+    'Acne', 
+    'Fatigue', 
+    'Bloating', 
+    'Cravings'
+  ];
+
+  const moodsList = [
+    { label: 'Calm', emoji: '😌', id: 'calm' },
+    { label: 'Happy', emoji: '😊', id: 'happy' },
+    { label: 'Anxious', emoji: '😰', id: 'anxious' },
+    { label: 'Sad', emoji: '😢', id: 'sad' },
+    { label: 'Angry', emoji: '😠', id: 'angry' },
+    { label: 'Sleepy', emoji: '😴', id: 'sleepy' },
+    { label: 'Distracted', emoji: '🫠', id: 'distracted' },
+    { label: 'Confused', emoji: '😵‍💫', id: 'confused' }
+  ];
 
   const handleSymptomToggle = (symptom) => {
-    setFormData(prev => ({
-      ...prev,
-      symptoms: prev.symptoms.includes(symptom)
-        ? prev.symptoms.filter(s => s !== symptom)
-        : [...prev.symptoms, symptom]
-    }));
+    if (symptom === 'Everything is Fine') {
+      setFormData(prev => ({
+        ...prev,
+        symptoms: prev.symptoms.includes('Everything is Fine') ? [] : ['Everything is Fine']
+      }));
+      return;
+    }
+
+    setFormData(prev => {
+      let newSymptoms = prev.symptoms.filter(s => s !== 'Everything is Fine');
+      if (newSymptoms.includes(symptom)) {
+        newSymptoms = newSymptoms.filter(s => s !== symptom);
+      } else {
+        newSymptoms.push(symptom);
+      }
+      return { ...prev, symptoms: newSymptoms };
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
-    // Reset form after submission
     setFormData({
       energyLevel: 3,
       productivityRating: 3,
-      mood: 'neutral',
+      mood: 'happy',
       symptoms: [],
       notes: ''
     });
   };
 
-  const getMoodEmoji = (mood) => {
-    const emojiMap = {
-      great: '😄',
-      good: '😊',
-      neutral: '😐',
-      low: '😔',
-      irritable: '😠'
-    };
-    return emojiMap[mood] || '😐';
-  };
-
   return (
     <form className="logging-form" onSubmit={handleSubmit}>
       {cyclePhase && (
-        <div className="cycle-phase-info">
-          <p className="phase-label">
-            🔄 Current Cycle Phase: <span className="phase-name">{cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)}</span>
-          </p>
-          <p className="phase-hint">Expected energy: {cyclePhase.typicalEnergy}/5 • {getCyclePhaseDescription(cyclePhase.phase)}</p>
+        <div className="cycle-phase-badge">
+          <span className="phase-icon">🩸</span>
+          <div className="phase-details">
+            <p className="phase-name">{cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)} Phase</p>
+            <p className="phase-hint">Day {cyclePhase.dayOfCycle} • {getCyclePhaseDescription(cyclePhase.phase)}</p>
+          </div>
         </div>
       )}
-      <div className="form-section">
-        <label className="form-label">
-          ⚡ Energy Level: <span className="value">{formData.energyLevel}/5</span>
-        </label>
-        <input
-          type="range"
-          min="1"
-          max="5"
-          value={formData.energyLevel}
-          onChange={(e) => setFormData(prev => ({ ...prev, energyLevel: parseInt(e.target.value) }))}
-          className="slider energy"
-        />
-        <div className="slider-labels">
-          <span>Low</span>
-          <span>High</span>
+
+      {/* Discrete Metric Selectors */}
+      <div className="metrics-group">
+        <div className="metric-row">
+          <label className="metric-label">Energy Level</label>
+          <div className="metric-pills">
+            {[1, 2, 3, 4, 5].map(val => (
+              <button
+                key={`energy-${val}`}
+                type="button"
+                className={`metric-pill ${formData.energyLevel === val ? 'active' : ''}`}
+                onClick={() => setFormData(prev => ({ ...prev, energyLevel: val }))}
+              >
+                {val}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="metric-row">
+          <label className="metric-label">Productivity</label>
+          <div className="metric-pills">
+            {[1, 2, 3, 4, 5].map(val => (
+              <button
+                key={`prod-${val}`}
+                type="button"
+                className={`metric-pill ${formData.productivityRating === val ? 'active' : ''}`}
+                onClick={() => setFormData(prev => ({ ...prev, productivityRating: val }))}
+              >
+                {val}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="form-section">
-        <label className="form-label">
-          📈 Productivity Rating: <span className="value">{formData.productivityRating}/5</span>
-        </label>
-        <input
-          type="range"
-          min="1"
-          max="5"
-          value={formData.productivityRating}
-          onChange={(e) => setFormData(prev => ({ ...prev, productivityRating: parseInt(e.target.value) }))}
-          className="slider productivity"
-        />
-        <div className="slider-labels">
-          <span>Low</span>
-          <span>High</span>
-        </div>
-      </div>
-
-      <div className="form-section">
-        <label className="form-label">😊 How's your mood?</label>
-        <div className="mood-buttons">
-          {moods.map(mood => (
+        <h3 className="section-title">Mood</h3>
+        <div className="pill-grid">
+          {moodsList.map(mood => (
             <button
-              key={mood}
+              key={mood.id}
               type="button"
-              className={`mood-btn ${formData.mood === mood ? 'active' : ''}`}
-              onClick={() => setFormData(prev => ({ ...prev, mood }))}
+              className={`select-pill ${formData.mood === mood.id ? 'active-mood' : ''}`}
+              onClick={() => setFormData(prev => ({ ...prev, mood: mood.id }))}
             >
-              <span className="mood-emoji">{getMoodEmoji(mood)}</span>
-              <span className="mood-label">{mood}</span>
+              <span className="pill-emoji">{mood.emoji}</span>
+              {mood.label}
             </button>
           ))}
         </div>
       </div>
 
       <div className="form-section">
-        <label className="form-label">🩺 Physical Symptoms (select all that apply)</label>
-        <div className="symptoms-grid">
-          {symptoms.map(symptom => (
-            <label key={symptom} className="symptom-checkbox">
-              <input
-                type="checkbox"
-                checked={formData.symptoms.includes(symptom)}
-                onChange={() => handleSymptomToggle(symptom)}
-              />
-              <span>{symptom}</span>
-            </label>
-          ))}
+        <h3 className="section-title">Symptoms</h3>
+        <div className="pill-grid symptoms-grid">
+          {symptomsList.map(symptom => {
+            const isActive = formData.symptoms.includes(symptom);
+            return (
+              <button
+                key={symptom}
+                type="button"
+                className={`select-pill ${isActive ? 'active-symptom' : ''}`}
+                onClick={() => handleSymptomToggle(symptom)}
+              >
+                {symptom}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div className="form-section">
-        <label className="form-label">📝 Personal Notes</label>
+        <h3 className="section-title">Journal</h3>
         <textarea
           value={formData.notes}
           onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-          placeholder="Write about your work, activities, and anything else you want to track..."
-          className="notes-input"
-          rows="6"
+          placeholder="How was your day?"
+          className="journal-input"
+          rows="3"
         />
       </div>
 
-      <button 
-        type="submit" 
-        className="submit-btn"
-        disabled={loading}
-      >
-        {loading ? '💾 Saving...' : '💾 Save Log'}
+      <button type="submit" className="save-btn" disabled={loading}>
+        {loading ? 'Saving...' : 'Save day'}
       </button>
     </form>
   );
@@ -163,10 +181,10 @@ export default LoggingForm;
 
 function getCyclePhaseDescription(phase) {
   const descriptions = {
-    menstrual: 'Focus on rest and self-care',
-    follicular: 'Great time for new projects!',
-    ovulation: 'Peak energy and sociability',
-    luteal: 'Reflection and consolidation time'
+    menstrual: 'Rest and self-care',
+    follicular: 'Great for new projects',
+    ovulation: 'Peak sociability',
+    luteal: 'Reflection time'
   };
   return descriptions[phase] || '';
 }

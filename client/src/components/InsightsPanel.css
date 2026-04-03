@@ -3,27 +3,28 @@
 }
 
 .back-btn {
-  background: none;
-  border: 2px solid #667eea;
-  color: #667eea;
-  padding: 8px 16px;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 2px solid #fecdd3;
+  color: #e11d48;
+  padding: 10px 20px;
+  border-radius: 20px;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  margin-bottom: 20px;
-  font-size: 0.95rem;
+  font-weight: 800;
+  transition: all 0.2s ease;
+  margin-bottom: 30px;
+  font-size: 1rem;
+  font-family: inherit;
 }
 
 .back-btn:hover {
-  background: #667eea;
-  color: white;
+  background: #fecdd3;
 }
 
 .insights-title {
-  font-size: 2rem;
-  color: #333;
+  font-size: 2.2rem;
+  color: #1e293b;
   margin-bottom: 30px;
+  font-weight: 800;
 }
 
 .insights-grid {
@@ -34,264 +35,403 @@
 }
 
 .insight-card {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  border-left: 5px solid #667eea;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
 }
 
 .insight-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
 }
 
 .insight-card h3 {
-  font-size: 1.2rem;
-  color: #333;
-  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: #64748b;
+  margin-bottom: 16px;
   margin-top: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.insight-card.energy {
-  border-left-color: #ff6b6b;
-}
-
-.insight-card.productivity {
-  border-left-color: #667eea;
-}
-
-.insight-card.symptoms {
-  border-left-color: #ffd93d;
-}
-
-.insight-card.mood {
-  border-left-color: #9c27b0;
-}
-
-.insight-card.cycle {
-  border-left-color: #ff6b6b;
-}
+/* Let's try soft backgrounds instead of borders for headers */
+.insight-card.energy { background: #fef3c7; border: none; }
+.insight-card.productivity { background: #dcfce7; border: none; }
+.insight-card.symptoms { background: #fee2e2; border: none; }
+.insight-card.mood { background: #f3e8ff; border: none; }
+.insight-card.cycle { background: #fce7f3; border: none; }
 
 .insight-stat {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  margin: 15px 0;
+  gap: 12px;
+  margin: 16px 0;
 }
 
 .stat-value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #667eea;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .stat-label {
-  color: #999;
-  font-size: 0.9rem;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .insight-trend {
-  font-size: 1rem;
-  color: #666;
-  margin: 10px 0;
-  padding: 10px;
-  background: #f5f7ff;
-  border-radius: 8px;
-  font-weight: 500;
+  font-size: 0.95rem;
+  color: #475569;
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  font-weight: 700;
 }
 
 .insight-detail {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #e0e0e0;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .detail-label {
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
-  font-size: 0.95rem;
+  font-weight: 800;
+  color: #334155;
+  margin: 0 0 10px 0;
+  font-size: 1rem;
 }
 
 .detail-value {
-  color: #667eea;
-  font-weight: 600;
-  font-size: 1.1rem;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 1.15rem;
 }
 
 .detail-value.small {
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .cycle-description {
-  color: #666;
-  font-size: 0.9rem;
-  margin-top: 10px;
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 6px;
-  line-height: 1.5;
+  color: #475569;
+  font-size: 0.95rem;
+  margin-top: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  line-height: 1.6;
+  font-weight: 600;
 }
 
 .insight-detail ul {
   list-style: none;
   padding: 0;
-  margin: 8px 0 0 0;
+  margin: 10px 0 0 0;
 }
 
 .insight-detail li {
-  color: #666;
-  padding: 5px 0;
-  font-size: 0.9rem;
+  color: #475569;
+  padding: 6px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .insight-detail li:before {
   content: "• ";
-  color: #667eea;
-  font-weight: bold;
-  margin-right: 8px;
+  color: #0f172a;
+  font-weight: 800;
+  margin-right: 10px;
 }
 
 .no-data {
-  color: #999;
+  color: #94a3b8;
   font-style: italic;
   margin: 10px 0;
+  font-size: 1rem;
 }
 
 .symptoms-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .symptoms-list li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
-  background: #f9f9f9;
-  border-radius: 6px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  font-weight: 700;
+  color: #334155;
 }
 
 .symptoms-list .count {
-  background: #667eea;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 800;
 }
 
 .mood-distribution {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .mood-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .mood-name {
-  min-width: 70px;
-  font-weight: 500;
-  color: #333;
+  min-width: 80px;
+  font-weight: 700;
+  color: #475569;
   text-transform: capitalize;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .bar-container {
   flex: 1;
   height: 20px;
-  background: #e0e0e0;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
-  border-radius: 10px;
-  transition: width 0.4s ease;
+  border-radius: 20px;
+  transition: width 0.5s ease;
+  background: #a855f7;
 }
 
 .mood-count {
-  min-width: 30px;
+  min-width: 35px;
   text-align: right;
-  color: #666;
-  font-weight: 500;
-  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .recommendations-section {
   margin-top: 40px;
-  padding: 30px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border-radius: 15px;
-  border: 2px solid #667eea;
+  padding: 32px;
+  background: #fdf2f8;
+  border-radius: 36px;
 }
 
 .recommendations-section h3 {
-  font-size: 1.4rem;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin-bottom: 24px;
   margin-top: 0;
+  font-weight: 800;
 }
 
 .recommendations {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 16px;
 }
 
 .recommendation-card {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  border-left: 4px solid #667eea;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 24px;
+  border-left: 6px solid #fbcfe8;
 }
 
 .recommendation-card p {
   margin: 0;
-  color: #333;
-  line-height: 1.6;
-  font-size: 0.95rem;
+  color: #334155;
+  line-height: 1.7;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .insights-summary {
   text-align: center;
-  margin-top: 30px;
-  padding: 20px;
-  background: #f5f7ff;
-  border-radius: 10px;
-  color: #666;
+  margin-top: 40px;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 24px;
+  color: #475569;
 }
 
 .insights-summary p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .insights-summary strong {
-  color: #667eea;
-  font-weight: bold;
+  color: #0f172a;
+  font-weight: 800;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.insight-card.career { background: #dbeafe; border: none; }
+
+.career-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.phase-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.phase-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e40af;
+  margin: 0;
+}
+
+.phase-metrics {
+  display: flex;
+  gap: 12px;
+}
+
+.metric {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.phase-description {
+  color: #475569;
+  font-size: 0.95rem;
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+.optimal-activities {
+  margin-top: 12px;
+}
+
+.activity-label {
+  font-weight: 700;
+  color: #334155;
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+}
+
+.optimal-activities ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.optimal-activities li {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.career-recommendations {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(251, 207, 232, 0.3);
+}
+
+.career-recommendations h4 {
+  font-size: 1.2rem;
+  color: #1e293b;
+  margin-bottom: 16px;
+  font-weight: 800;
+}
+
+.recommendation-card.career-rec {
+  border-left-color: #3b82f6;
+}
+
+.work-timing {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(251, 207, 232, 0.3);
+}
+
+.work-timing h4 {
+  font-size: 1.2rem;
+  color: #1e293b;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.timing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.timing-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  text-align: center;
+}
+
+.timing-card h5 {
+  font-size: 1.1rem;
+  color: #1e40af;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.phase-timing {
+  color: #3b82f6;
+  font-weight: 700;
+  margin: 8px 0;
+  font-size: 0.95rem;
+}
+
+.timing-reason {
+  color: #475569;
+  font-size: 0.9rem;
+  margin: 8px 0 0 0;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 @media (max-width: 768px) {
-  .insights-grid {
-    grid-template-columns: 1fr;
-  }
+  .insights-grid { grid-template-columns: 1fr; }
+  .timing-grid { grid-template-columns: 1fr; }
+  .phase-header { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
