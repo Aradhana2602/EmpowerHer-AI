@@ -1,0 +1,56 @@
+.task-planner {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.task-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.task-input input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.task-input select {
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.task-input button {
+  background: pink;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.task-card {
+  background: #fdf2f8;
+  padding: 12px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.effort-tag {
+  font-size: 0.8rem;
+  color: #9333ea;
+}
+
+.task-suggestion {
+  margin-top: 5px;
+  font-weight: bold;
+  color: #e11d48;
+}

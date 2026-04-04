@@ -8,8 +8,8 @@ import NotificationsPanel from './components/NotificationsPanel';
 import Navbar from './components/Navbar';
 import CopilotPanel from './components/CopilotPanel';
 import BottomNav from './components/BottomNav';
+import TaskPlanner from './components/TaskPlanner';
 import './App.css';
-
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -27,7 +27,9 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [streamlitOpened, setStreamlitOpened] = useState(false);
 
-  // Handle Streamlit page redirect
+  // ✅ NEW: Notifications state
+  const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
     if (currentPage === 'streamlit' && !streamlitOpened) {
       window.open('https://ecetpgml2gtkkxarnyfuvp.streamlit.app/', '_blank');
@@ -36,7 +38,6 @@ function App() {
     }
   }, [currentPage, streamlitOpened]);
 
-  // Fetch all logs and cycle info on mount
   useEffect(() => {
     fetchAllLogs();
     fetchCycleInfo();
@@ -86,7 +87,6 @@ function App() {
     }
   }, [selectedDate]);
 
-  // Fetch predicted period days and phase when cycle info changes or date changes
   useEffect(() => {
     if (cycleInfo?.isConfigured) {
       fetchPredictedDays();
@@ -103,18 +103,16 @@ function App() {
     try {
       setLoading(true);
       const dateStr = selectedDate.toISOString().split('T')[0];
-      
+
       const response = await axios.post(`${API_URL}/logs`, {
         date: dateStr,
         ...logData
       });
 
-      // Update logs
       const updatedLogs = logs.filter(log => log.date !== dateStr);
       updatedLogs.push(response.data);
       setLogs(updatedLogs);
-      
-      // Update logged dates
+
       const dateString = new Date(response.data.date).toDateString();
       if (!loggedDates.includes(dateString)) {
         setLoggedDates([...loggedDates, dateString]);
@@ -129,17 +127,33 @@ function App() {
     }
   };
 
+  // ✅ UPDATED INSIGHTS (Frontend AI-style)
   const handleGetInsights = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/insights`, {
-        params: { limit: 100 }
-      });
-      setInsights(response.data);
+
+      const highEnergy = logs.filter(l => l.energy >= 4).length;
+      const lowEnergy = logs.filter(l => l.energy <= 2).length;
+
+      let insightsData = [];
+
+      if (highEnergy > lowEnergy) {
+        insightsData.push("⚡ You perform best on high-energy days.");
+      }
+
+      if (lowEnergy >= 3) {
+        insightsData.push("⚠️ You may be overworking — take rest.");
+      }
+
+      if (logs.length < 3) {
+        insightsData.push("📊 Log more data to get better insights.");
+      }
+
+      setInsights(insightsData);
       setShowInsights(true);
+
     } catch (error) {
-      console.error('Error fetching insights:', error);
-      alert('Error fetching insights. Make sure you have at least 3 days of logged data.');
+      console.error('Error generating insights:', error);
     } finally {
       setLoading(false);
     }
@@ -152,18 +166,43 @@ function App() {
       setCycleInfo(response.data);
       setShowCycleSetup(false);
       fetchPredictedDays();
-      alert('Cycle information saved! Your period days will be automatically predicted.');
     } catch (error) {
       console.error('Error saving cycle info:', error);
-      alert('Error saving cycle information. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const isDateLogged = (date) => {
-    return loggedDates.includes(date.toDateString());
+  // ✅ NEW: Notification generator
+  const generateNotifications = (logs, cyclePhase) => {
+    let notes = [];
+
+    if (cyclePhase?.typicalEnergy >= 4) {
+      notes.push("⚡ High energy — do your most important work now!");
+    }
+
+    if (cyclePhase?.typicalEnergy <= 2) {
+      notes.push("💤 Low energy — take lighter tasks today.");
+    }
+
+    if (logs.length >= 3) {
+      const last3 = logs.slice(-3);
+      const burnout = last3.every(l => l.energy <= 2);
+
+      if (burnout) {
+        notes.push("⚠️ लगातार low energy — burnout risk!");
+      }
+    }
+
+    return notes;
   };
+
+  // ✅ Auto-update notifications
+  useEffect(() => {
+    setNotifications(generateNotifications(logs, cyclePhase));
+  }, [logs, cyclePhase]);
+
+  const isDateLogged = (date) => loggedDates.includes(date.toDateString());
 
   const isDatePredictedPeriod = (date) => {
     const dateStr = date.toISOString().split('T')[0];
@@ -175,165 +214,35 @@ function App() {
     return logs.find(log => log.date === dateStr);
   };
 
-  const getMoodStreak = () => {
-    if (!logs.length) return 0;
-    const sorted = [...logs].sort((a, b) => new Date(b.date) - new Date(a.date));
-    let streak = 0;
-    let prevDate = new Date(sorted[0].date);
-    for (const log of sorted) {
-      const current = new Date(log.date);
-      if (streak === 0 || (prevDate - current) / (1000 * 60 * 60 * 24) === 1) {
-        streak += 1;
-        prevDate = current;
-      } else {
-        break;
-      }
-    }
-    return streak;
-  };
-
-  const getNextPeriodDate = () => {
-    if (!predictedPeriodDays.length) return null;
-    const now = new Date();
-    const future = predictedPeriodDays
-      .map(d => new Date(d))
-      .filter(d => d >= now)
-      .sort((a, b) => a - b);
-    return future.length ? future[0] : new Date(predictedPeriodDays[0]);
-  };
-
-  const getDaysLeftToPeriod = () => {
-    const next = getNextPeriodDate();
-    if (!next) return null;
-    const today = new Date();
-    const diff = Math.ceil((next - today) / (1000 * 60 * 60 * 24));
-    return diff >= 0 ? diff : 0;
-  };
-
-  const getCycleProgress = () => {
-    if (!cycleInfo?.cycleLength) return 0;
-    const start = new Date(cycleInfo.lastPeriodStartDate);
-    const today = new Date();
-
-    const daysSince = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-    const progress = ((daysSince % cycleInfo.cycleLength) / cycleInfo.cycleLength) * 100;
-    return Math.max(0, Math.min(progress, 100));
-  };
-
   if (showCycleSetup) {
     return (
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-        <div className="app-container">
-          <header className="app-header">
-            <h1>🔄 Menstrual Cycle Setup</h1>
-            <p>Let's train your AI with your cycle information</p>
-          </header>
-          <main className="app-main">
-            <CycleSetup onSubmit={handleCycleSetup} loading={loading} />
-          </main>
-        </div>
+        <CycleSetup onSubmit={handleCycleSetup} loading={loading} />
       </div>
     );
   }
 
-  // Streamlit page - with navbar
-  if (currentPage === 'streamlit') {
-    return (
-      <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-        <div className="streamlit-container">
-          <iframe
-            src="https://ecetpgml2gtkkxarnyfuvp.streamlit.app/"
-            style={{
-              width: '100%',
-              height: 'calc(100vh - 70px)',
-              border: 'none',
-              display: 'block'
-            }}
-            title="AI Analysis"
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Copilot page
   if (currentPage === 'copilot') {
     return (
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-        <div className="app-container">
-          <main className="app-main" style={{ display: 'block' }}>
-            <CopilotPanel cyclePhase={cyclePhase} />
-          </main>
-        </div>
+        <CopilotPanel cyclePhase={cyclePhase} />
       </div>
     );
   }
 
-  // Dashboard page (original)
   return (
     <div className="app-wrapper">
       <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+
+      {/* ✅ Notifications */}
+      <NotificationsPanel notifications={notifications} />
+
       <div className="app-container">
-        <NotificationsPanel />
-        
-        <header className="app-header">
-          <div className="hero-card">
-            <div className="hero-card-top">
-              <div>
-                <p className="hero-title">Keep Track of your Periods</p>
-                <h1>Hey, {cycleInfo?.userName || 'User'}</h1>
-                <p className="hero-subtitle">Your personal cycle+workflow dashboard</p>
-              </div>
-              <div className="ring-widget">
-                <div className="ring-outer" style={{ background: `conic-gradient(#f43f5e 0 ${getCycleProgress()}%, #fca5a5 ${getCycleProgress()}% 100%)` }}>
-                  <div className="ring-inner">
-                    <span className="ring-day">{cyclePhase ? `Day ${cyclePhase.dayInPhase + 1}` : 'Day 1'}</span>
-                    <span className="ring-phase">{cyclePhase ? `${cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)}` : 'Menstrual'}</span>
-                  </div>
-                </div>
-                <p className="ring-note">Ovulation window in {cyclePhase ? `${Math.max(0, 14 - cyclePhase.dayInPhase)} days` : '9 days'}</p>
-                <p className="ring-progress">Cycle progress: {getCycleProgress().toFixed(0)}%</p>
-              </div>
-            </div>
-
-            <div className="hero-secondary">
-              <button className="hero-btn phase-pill">Period</button>
-              <button className="hero-btn phase-pill">Pre-ovulation</button>
-              <button className="hero-btn phase-pill">Ovulation</button>
-              <button className="hero-btn phase-pill">Luteal</button>
-            </div>
-          </div>
-
-          <div className="quick-stats">
-            <div className="stat-card">
-              <h4>Next period</h4>
-              <p>{getNextPeriodDate() ? new Date(getNextPeriodDate()).toLocaleDateString() : 'Unknown'}</p>
-            </div>
-            <div className="stat-card">
-              <h4>Days left</h4>
-              <p>{getDaysLeftToPeriod() ?? '--'}</p>
-            </div>
-            <div className="stat-card">
-              <h4>Mood streak</h4>
-              <p>{getMoodStreak()} days</p>
-            </div>
-          </div>
-
-          {cycleInfo?.isConfigured && (
-            <div className="cycle-info-badge">
-              🔄 Cycle Tracking Active • {cycleInfo.cycleLength}-day cycle
-              <button className="edit-cycle-btn" onClick={() => setShowCycleSetup(true)}>Edit</button>
-            </div>
-          )}
-        </header>
-
         <main className="app-main">
           <div className="left-panel">
-            <Calendar 
+            <Calendar
               selectedDate={selectedDate}
               onDateClick={handleDateClick}
               isDateLogged={isDateLogged}
@@ -341,52 +250,33 @@ function App() {
               loggedDates={loggedDates}
               predictedPeriodDays={predictedPeriodDays}
             />
-            {cyclePhase && (
-              <div className="cycle-phase-card">
-                <h3>Current Phase</h3>
-                <p className="phase-name">{cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)}</p>
-                <p className="phase-energy">Expected Energy: {cyclePhase.typicalEnergy}/5</p>
-              </div>
-            )}
-            <button 
+
+            <button
               className="insights-btn"
               onClick={handleGetInsights}
-              disabled={loading || logs.length < 3}
+              disabled={loading || logs.length < 1}
             >
-              🧠 Get AI Insights ({logs.length} days logged)
+              🧠 Get AI Insights
             </button>
           </div>
 
           <div className="center-panel">
-            <h2 className="date-header">
-              {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-              {isDateLogged(selectedDate) && <span className="logged-badge">✓ Logged</span>}
-              {isDatePredictedPeriod(selectedDate) && <span className="period-badge">🩸 Predicted Period</span>}
-            </h2>
-
-            {!showInsights && (
-              <LoggingForm 
+            {!showInsights ? (
+              <LoggingForm
                 onSubmit={handleLogSubmit}
                 loading={loading}
                 initialData={getTodayLog()}
                 cyclePhase={cyclePhase}
               />
-            )}
-
-            {showInsights && insights && (
-              <InsightsPanel 
+            ) : (
+              <InsightsPanel
                 insights={insights}
-                cycleInfo={cycleInfo}
                 onBack={() => setShowInsights(false)}
               />
             )}
           </div>
         </main>
+
         <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
       </div>
     </div>
