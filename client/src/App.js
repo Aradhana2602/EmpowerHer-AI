@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import CopilotPanel from './components/CopilotPanel';
 import BottomNav from './components/BottomNav';
 import TaskPlanner from './components/TaskPlanner';
+import MeetingAssistant from './components/MeetingAssistant';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -27,9 +28,9 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [streamlitOpened, setStreamlitOpened] = useState(false);
   const [tasks, setTasks] = useState([]);
-  // ✅ NEW: Notifications state
   const [notifications, setNotifications] = useState([]);
 
+  // ---------------- STREAMLIT ----------------
   useEffect(() => {
     if (currentPage === 'streamlit' && !streamlitOpened) {
       window.open('https://ecetpgml2gtkkxarnyfuvp.streamlit.app/', '_blank');
@@ -38,6 +39,7 @@ function App() {
     }
   }, [currentPage, streamlitOpened]);
 
+  // ---------------- FETCH ----------------
   useEffect(() => {
     fetchAllLogs();
     fetchCycleInfo();
@@ -45,46 +47,40 @@ function App() {
 
   const fetchAllLogs = async () => {
     try {
-      const response = await axios.get(`${API_URL}/logs`);
-      setLogs(response.data);
-      const dates = response.data.map(log => new Date(log.date).toDateString());
-      setLoggedDates(dates);
-    } catch (error) {
-      console.error('Error fetching logs:', error);
+      const res = await axios.get(`${API_URL}/logs`);
+      setLogs(res.data);
+      setLoggedDates(res.data.map(l => new Date(l.date).toDateString()));
+    } catch (e) {
+      console.error(e);
     }
   };
 
   const fetchCycleInfo = async () => {
     try {
-      const response = await axios.get(`${API_URL}/cycle`);
-      setCycleInfo(response.data);
-      if (!response.data.isConfigured) {
-        setShowCycleSetup(true);
-      }
-    } catch (error) {
-      console.error('Error fetching cycle info:', error);
+      const res = await axios.get(`${API_URL}/cycle`);
+      setCycleInfo(res.data);
+      if (!res.data.isConfigured) setShowCycleSetup(true);
+    } catch (e) {
+      console.error(e);
     }
   };
 
   const fetchPredictedDays = useCallback(async () => {
     try {
-      const year = selectedDate.getFullYear();
-      const month = selectedDate.getMonth() + 1;
-      const response = await axios.get(`${API_URL}/cycle/predict/${year}/${month}`);
-      setPredictedPeriodDays(response.data.predictedDays || []);
-    } catch (error) {
-      console.error('Error fetching predicted days:', error);
-    }
+      const res = await axios.get(
+        `${API_URL}/cycle/predict/${selectedDate.getFullYear()}/${selectedDate.getMonth()+1}`
+      );
+      setPredictedPeriodDays(res.data.predictedDays || []);
+    } catch (e) {}
   }, [selectedDate]);
 
   const fetchCyclePhase = useCallback(async () => {
     try {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      const response = await axios.get(`${API_URL}/cycle/phase/${dateStr}`);
-      setCyclePhase(response.data);
-    } catch (error) {
-      console.error('Error fetching cycle phase:', error);
-    }
+      const res = await axios.get(
+        `${API_URL}/cycle/phase/${selectedDate.toISOString().split('T')[0]}`
+      );
+      setCyclePhase(res.data);
+    } catch (e) {}
   }, [selectedDate]);
 
   useEffect(() => {
@@ -92,149 +88,71 @@ function App() {
       fetchPredictedDays();
       fetchCyclePhase();
     }
-  }, [cycleInfo?.isConfigured, fetchPredictedDays, fetchCyclePhase]);
+  }, [cycleInfo, fetchPredictedDays, fetchCyclePhase]);
 
-  const handleDateClick = (date) => {
-    setSelectedDate(date);
-    setShowInsights(false);
-  };
-
-  const handleLogSubmit = async (logData) => {
+  // ---------------- LOGGING ----------------
+  const handleLogSubmit = async (data) => {
     try {
       setLoading(true);
       const dateStr = selectedDate.toISOString().split('T')[0];
+      const res = await axios.post(`${API_URL}/logs`, { date: dateStr, ...data });
 
-      const response = await axios.post(`${API_URL}/logs`, {
-        date: dateStr,
-        ...logData
-      });
-
-      const updatedLogs = logs.filter(log => log.date !== dateStr);
-      updatedLogs.push(response.data);
-      setLogs(updatedLogs);
-
-      const dateString = new Date(response.data.date).toDateString();
-      if (!loggedDates.includes(dateString)) {
-        setLoggedDates([...loggedDates, dateString]);
-      }
-
-      alert('Log saved successfully!');
-    } catch (error) {
-      console.error('Error saving log:', error);
-      alert('Error saving log. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
- const addTask = (task) => {
-  setTasks([...tasks, task]);
-};
-
-const suggestBestTime = (task) => {
-  if (!cyclePhase) return "No data yet";
-
-  if (task.effort === "deep" && cyclePhase.typicalEnergy >= 4) {
-    return "🚀 Best time: Do this now!";
-  }
-
-  if (task.effort === "light" && cyclePhase.typicalEnergy <= 3) {
-    return "👍 Good time for light work";
-  }
-
-  return "⏳ Better to schedule later";
-};
-  // ✅ UPDATED INSIGHTS (Frontend AI-style)
-  const handleGetInsights = async () => {
-    try {
-      setLoading(true);
-
-      const highEnergy = logs.filter(l => l.energy >= 4).length;
-      const lowEnergy = logs.filter(l => l.energy <= 2).length;
-
-      let insightsData = [];
-
-      if (highEnergy > lowEnergy) {
-        insightsData.push("⚡ You perform best on high-energy days.");
-      }
-
-      if (lowEnergy >= 3) {
-        insightsData.push("⚠️ You may be overworking — take rest.");
-      }
-
-      if (logs.length < 3) {
-        insightsData.push("📊 Log more data to get better insights.");
-      }
-
-      setInsights(insightsData);
-      setShowInsights(true);
-
-    } catch (error) {
-      console.error('Error generating insights:', error);
+      const updated = logs.filter(l => l.date !== dateStr);
+      updated.push(res.data);
+      setLogs(updated);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCycleSetup = async (cycleData) => {
-    try {
-      setLoading(true);
-      const response = await axios.post(`${API_URL}/cycle`, cycleData);
-      setCycleInfo(response.data);
-      setShowCycleSetup(false);
-      fetchPredictedDays();
-    } catch (error) {
-      console.error('Error saving cycle info:', error);
-    } finally {
-      setLoading(false);
-    }
+  // ---------------- TASK ----------------
+  const addTask = (task) => setTasks([...tasks, task]);
+
+  const suggestBestTime = (task) => {
+    if (!cyclePhase) return "No data yet";
+
+    if (task.effort === "deep" && cyclePhase.typicalEnergy >= 4)
+      return "🚀 Do now";
+
+    if (task.effort === "light")
+      return "👍 Good time";
+
+    return "⏳ Later";
   };
 
-  // ✅ NEW: Notification generator
-  const generateNotifications = (logs, cyclePhase) => {
+  // ---------------- INSIGHTS ----------------
+  const handleGetInsights = () => {
+    const high = logs.filter(l => l.energy >= 4).length;
+    const low = logs.filter(l => l.energy <= 2).length;
+
+    let data = [];
+    if (high > low) data.push("⚡ High performance days detected");
+    if (low >= 3) data.push("⚠️ Possible burnout");
+
+    setInsights(data);
+    setShowInsights(true);
+  };
+
+  // ---------------- NOTIFICATIONS ----------------
+  useEffect(() => {
     let notes = [];
 
-    if (cyclePhase?.typicalEnergy >= 4) {
-      notes.push("⚡ High energy — do your most important work now!");
-    }
+    if (cyclePhase?.typicalEnergy >= 4)
+      notes.push("⚡ High energy — do important work");
 
-    if (cyclePhase?.typicalEnergy <= 2) {
-      notes.push("💤 Low energy — take lighter tasks today.");
-    }
+    if (cyclePhase?.typicalEnergy <= 2)
+      notes.push("💤 Low energy — rest");
 
-    if (logs.length >= 3) {
-      const last3 = logs.slice(-3);
-      const burnout = last3.every(l => l.energy <= 2);
-
-      if (burnout) {
-        notes.push("⚠️ लगातार low energy — burnout risk!");
-      }
-    }
-
-    return notes;
-  };
-
-  // ✅ Auto-update notifications
-  useEffect(() => {
-    setNotifications(generateNotifications(logs, cyclePhase));
+    setNotifications(notes);
   }, [logs, cyclePhase]);
 
-  const isDateLogged = (date) => loggedDates.includes(date.toDateString());
+  // ---------------- ROUTES ----------------
 
-  const isDatePredictedPeriod = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return predictedPeriodDays.includes(dateStr);
-  };
-
-  const getTodayLog = () => {
-    const dateStr = selectedDate.toISOString().split('T')[0];
-    return logs.find(log => log.date === dateStr);
-  };
-
-  if (showCycleSetup) {
+  if (currentPage === 'meeting') {
     return (
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-        <CycleSetup onSubmit={handleCycleSetup} loading={loading} />
+        <MeetingAssistant cyclePhase={cyclePhase} logs={logs} />
       </div>
     );
   }
@@ -248,53 +166,50 @@ const suggestBestTime = (task) => {
     );
   }
 
+  if (showCycleSetup) {
+    return <CycleSetup onSubmit={()=>{}} />;
+  }
+
+  // ---------------- MAIN UI ----------------
   return (
     <div className="app-wrapper">
       <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
 
-      {/* ✅ Notifications */}
       <NotificationsPanel notifications={notifications} />
 
       <div className="app-container">
         <main className="app-main">
+
           <div className="left-panel">
             <Calendar
               selectedDate={selectedDate}
-              onDateClick={handleDateClick}
-              isDateLogged={isDateLogged}
-              isDatePredictedPeriod={isDatePredictedPeriod}
-              loggedDates={loggedDates}
-              predictedPeriodDays={predictedPeriodDays}
+              onDateClick={setSelectedDate}
+              isDateLogged={(d)=>loggedDates.includes(d.toDateString())}
+              isDatePredictedPeriod={()=>false}
             />
 
-            <button
-              className="insights-btn"
-              onClick={handleGetInsights}
-              disabled={loading || logs.length < 1}
-            >
-              🧠 Get AI Insights
+            <button onClick={handleGetInsights}>
+              🧠 Insights
             </button>
           </div>
 
           <div className="center-panel">
             {!showInsights ? (
-              <LoggingForm
-                onSubmit={handleLogSubmit}
-                loading={loading}
-                initialData={getTodayLog()}
-                cyclePhase={cyclePhase}
-              />
+              <LoggingForm onSubmit={handleLogSubmit} />
             ) : (
-              <InsightsPanel
-                insights={insights}
-                onBack={() => setShowInsights(false)}
-              />
+              <InsightsPanel insights={insights} />
             )}
-          </div><TaskPlanner 
-  tasks={tasks} 
-  addTask={addTask} 
-  suggestBestTime={suggestBestTime} 
-/>
+          </div>
+
+          {/* ✅ TASK PLANNER FIXED POSITION */}
+          <div className="right-panel">
+            <TaskPlanner
+              tasks={tasks}
+              addTask={addTask}
+              suggestBestTime={suggestBestTime}
+            />
+          </div>
+
         </main>
 
         <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
