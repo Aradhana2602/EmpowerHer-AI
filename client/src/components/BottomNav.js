@@ -23,6 +23,13 @@ function BottomNav({ currentPage, onPageChange }) {
   <span>🎤</span>
   Meetings
 </button>
+<button 
+  className={`nav-btn ${currentPage === 'safety' ? 'active' : ''}`}
+  onClick={() => onPageChange('safety')}
+>
+  <span>🛡️</span>
+  Safety
+</button>
       <button className={`nav-btn ${currentPage === 'settings' ? 'active' : ''}`} onClick={() => onPageChange('settings')}>
         <span>⚙️</span>
         <small>More</small>

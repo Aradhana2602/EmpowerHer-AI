@@ -90,6 +90,7 @@ function App() {
       fetchCyclePhase();
     }
   }, [cycleInfo, fetchPredictedDays, fetchCyclePhase]);
+  
 
   // ---------------- LOGGING ----------------
   const handleLogSubmit = async (data) => {
@@ -157,7 +158,14 @@ function App() {
       </div>
     );
   }
-
+ if (currentPage === 'safety') {
+  return (
+    <div className="app-wrapper">
+      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+      <SafetyPanel logs={logs} />
+    </div>
+  );
+}
   if (currentPage === 'copilot') {
     return (
       <div className="app-wrapper">
