@@ -26,7 +26,7 @@ function App() {
   const [cyclePhase, setCyclePhase] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [streamlitOpened, setStreamlitOpened] = useState(false);
-
+  const [tasks, setTasks] = useState([]);
   // ✅ NEW: Notifications state
   const [notifications, setNotifications] = useState([]);
 
@@ -126,7 +126,23 @@ function App() {
       setLoading(false);
     }
   };
+ const addTask = (task) => {
+  setTasks([...tasks, task]);
+};
 
+const suggestBestTime = (task) => {
+  if (!cyclePhase) return "No data yet";
+
+  if (task.effort === "deep" && cyclePhase.typicalEnergy >= 4) {
+    return "🚀 Best time: Do this now!";
+  }
+
+  if (task.effort === "light" && cyclePhase.typicalEnergy <= 3) {
+    return "👍 Good time for light work";
+  }
+
+  return "⏳ Better to schedule later";
+};
   // ✅ UPDATED INSIGHTS (Frontend AI-style)
   const handleGetInsights = async () => {
     try {
@@ -274,7 +290,11 @@ function App() {
                 onBack={() => setShowInsights(false)}
               />
             )}
-          </div>
+          </div><TaskPlanner 
+  tasks={tasks} 
+  addTask={addTask} 
+  suggestBestTime={suggestBestTime} 
+/>
         </main>
 
         <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
