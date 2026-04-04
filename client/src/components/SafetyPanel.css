@@ -1,0 +1,53 @@
+.safety-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.sos-btn {
+  width: 100%;
+  padding: 15px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.location {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.voice-box button {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #f43f5e;
+  color: white;
+}
+
+.route-box {
+  margin-top: 20px;
+}
+
+.route-box input {
+  width: 70%;
+  padding: 8px;
+  margin-right: 5px;
+}
+
+.route-box button {
+  padding: 8px 12px;
+}
+
+.activity-box {
+  margin-top: 20px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 10px;
+}

@@ -10,6 +10,7 @@ import CopilotPanel from './components/CopilotPanel';
 import BottomNav from './components/BottomNav';
 import TaskPlanner from './components/TaskPlanner';
 import MeetingAssistant from './components/MeetingAssistant';
+import SafetyPanel from './components/SafetyPanel';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
