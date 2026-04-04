@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Navbar.css';
 
-function Navbar({ currentPage, onPageChange }) {
+function Navbar({ currentPage, setCurrentPage }) {
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -14,7 +14,7 @@ function Navbar({ currentPage, onPageChange }) {
           <li className="navbar-item">
             <button
               className={`navbar-link ${currentPage === 'home' ? 'active' : ''}`}
-              onClick={() => onPageChange('home')}
+              onClick={() => setCurrentPage('home')}
             >
               Dashboard
             </button>
@@ -23,9 +23,18 @@ function Navbar({ currentPage, onPageChange }) {
           <li className="navbar-item">
             <button
               className={`navbar-link ${currentPage === 'copilot' ? 'active' : ''}`}
-              onClick={() => onPageChange('copilot')}
+              onClick={() => setCurrentPage('copilot')}
             >
               BioBoundary AI
+            </button>
+          </li>
+
+          <li className="navbar-item">
+            <button
+              className={`navbar-link ${currentPage === 'resume' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('resume')}
+            >
+              Resume AI
             </button>
           </li>
 

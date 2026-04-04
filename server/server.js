@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -9,6 +10,7 @@ const insightsRouter = require('./routes/insights');
 const cycleRouter = require('./routes/cycle');
 const notificationsRouter = require('./routes/notifications');
 const copilotRouter = require('./routes/copilot');
+const resumeRouter = require('./routes/resume');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,6 +29,7 @@ app.use('/api/insights', insightsRouter);
 app.use('/api/cycle', cycleRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/copilot', copilotRouter);
+app.use('/api/resume', resumeRouter);
 
 // Health check
 app.get('/health', (req, res) => {

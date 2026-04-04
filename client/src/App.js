@@ -8,6 +8,7 @@ import NotificationsPanel from './components/NotificationsPanel';
 import Navbar from './components/Navbar';
 import CopilotPanel from './components/CopilotPanel';
 import BottomNav from './components/BottomNav';
+import ResumeEvaluator from './components/ResumeEvaluator';
 import './App.css';
 
 
@@ -223,7 +224,7 @@ function App() {
   if (showCycleSetup) {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <header className="app-header">
             <h1>🔄 Menstrual Cycle Setup</h1>
@@ -241,7 +242,7 @@ function App() {
   if (currentPage === 'streamlit') {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="streamlit-container">
           <iframe
             src="https://ecetpgml2gtkkxarnyfuvp.streamlit.app/"
@@ -263,7 +264,7 @@ function App() {
   if (currentPage === 'copilot') {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <main className="app-main" style={{ display: 'block' }}>
             <CopilotPanel cyclePhase={cyclePhase} />
@@ -273,10 +274,24 @@ function App() {
     );
   }
 
+  // Resume Evaluation page
+  if (currentPage === 'resume') {
+    return (
+      <div className="app-wrapper">
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="app-container">
+          <main className="app-main" style={{ display: 'block' }}>
+            <ResumeEvaluator />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   // Dashboard page (original)
   return (
     <div className="app-wrapper">
-      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
       <div className="app-container">
         <NotificationsPanel />
         
