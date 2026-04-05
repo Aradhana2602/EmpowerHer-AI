@@ -74,7 +74,11 @@ function App() {
       setShowCycleSetup(false);
     } catch (error) {
       console.error('Error saving cycle info:', error);
-      alert('Failed to save cycle setup. Please try again.');
+      if (error.code === 'ERR_NETWORK') {
+        alert('Server connection failed. Ensure your backend server is running on port 5000!');
+      } else {
+        alert('Failed to save cycle setup. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -211,8 +215,11 @@ function App() {
               cycleInfo={cycleInfo}
             />
 
-            <button onClick={handleGetInsights}>
+            <button className="insights-btn" onClick={handleGetInsights}>
               🧠 Insights
+            </button>
+            <button className="insights-btn" style={{ marginTop: '15px', background: '#fdf2f8', border: '2px solid #fbcfe8' }} onClick={() => setShowCycleSetup(true)}>
+              ⚙️ Edit Cycle Setup
             </button>
           </div>
 
