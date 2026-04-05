@@ -128,28 +128,61 @@
   bottom: 8px;
 }
 
-.calendar-day.predicted-period {
+/* Phase Colors */
+.calendar-day.phase-menstrual {
   background: #ffe4e6;
   color: #e11d48;
 }
 
-.calendar-day.predicted-period:hover {
+.calendar-day.phase-menstrual:hover {
   background: #fecdd3;
 }
 
-.calendar-day.predicted-period.selected {
+.calendar-day.phase-menstrual.selected {
   background: #f43f5e;
   color: white;
 }
 
-.period-dot {
-  width: 6px;
-  height: 6px;
-  background: #f43f5e;
-  border-radius: 50%;
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
+.calendar-day.phase-follicular {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.calendar-day.phase-follicular:hover {
+  background: #d1fae5;
+}
+
+.calendar-day.phase-follicular.selected {
+  background: #10b981;
+  color: white;
+}
+
+.calendar-day.phase-ovulation {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.calendar-day.phase-ovulation:hover {
+  background: #fef08a;
+}
+
+.calendar-day.phase-ovulation.selected {
+  background: #eab308;
+  color: white;
+}
+
+.calendar-day.phase-luteal {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.calendar-day.phase-luteal:hover {
+  background: #e9d5ff;
+}
+
+.calendar-day.phase-luteal.selected {
+  background: #a855f7;
+  color: white;
 }
 
 .calendar-legend {
@@ -181,6 +214,18 @@
   background: #14b8a6;
 }
 
-.legend-dot.period {
+.legend-dot.phase-menstrual-legend {
   background: #f43f5e;
+}
+
+.legend-dot.phase-follicular-legend {
+  background: #10b981;
+}
+
+.legend-dot.phase-ovulation-legend {
+  background: #eab308;
+}
+
+.legend-dot.phase-luteal-legend {
+  background: #a855f7;
 }

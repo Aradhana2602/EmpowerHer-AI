@@ -208,10 +208,7 @@ function App() {
               selectedDate={selectedDate}
               onDateClick={setSelectedDate}
               isDateLogged={(d)=>loggedDates.includes(d.toDateString())}
-              isDatePredictedPeriod={(d) => {
-                const dString = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-                return predictedPeriodDays.includes(dString);
-              }}
+              cycleInfo={cycleInfo}
             />
 
             <button onClick={handleGetInsights}>

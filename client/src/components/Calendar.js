@@ -2,8 +2,31 @@ import React, { useState } from 'react';
 import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek } from 'date-fns';
 import './Calendar.css';
 
-function Calendar({ selectedDate, onDateClick, isDateLogged, isDatePredictedPeriod, loggedDates, predictedPeriodDays }) {
+function Calendar({ selectedDate, onDateClick, isDateLogged, cycleInfo }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const getPhase = (day) => {
+    if (!cycleInfo || !cycleInfo.isConfigured || !cycleInfo.lastPeriodStartDate) return null;
+    const lastPeriod = new Date(cycleInfo.lastPeriodStartDate);
+    lastPeriod.setHours(0, 0, 0, 0);
+    const target = new Date(day);
+    target.setHours(0, 0, 0, 0);
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+    let diffInDays = Math.round((target - lastPeriod) / msPerDay);
+
+    if (diffInDays < 0) {
+      const cycles = Math.ceil(Math.abs(diffInDays) / cycleInfo.cycleLength);
+      diffInDays += cycles * cycleInfo.cycleLength;
+    }
+
+    const dayInCycle = diffInDays % cycleInfo.cycleLength;
+
+    if (dayInCycle < cycleInfo.periodDuration) return 'menstrual';
+    if (dayInCycle < cycleInfo.periodDuration + 7) return 'follicular';
+    if (dayInCycle < cycleInfo.periodDuration + 14) return 'ovulation';
+    return 'luteal';
+  };
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -46,17 +69,17 @@ function Calendar({ selectedDate, onDateClick, isDateLogged, isDatePredictedPeri
               const isCurrentMonth = isSameMonth(day, currentMonth);
               const isSelected = isSameDay(day, selectedDate);
               const isLogged = isDateLogged(day);
-              const isPredictedPeriod = isDatePredictedPeriod(day);
+              const phase = getPhase(day);
+              const phaseClass = phase ? `phase-${phase}` : '';
 
               return (
                 <button
                   key={dayIndex}
-                  className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isSelected ? 'selected' : ''} ${isLogged ? 'logged' : ''} ${isPredictedPeriod ? 'predicted-period' : ''}`}
+                  className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isSelected ? 'selected' : ''} ${isLogged ? 'logged' : ''} ${phaseClass}`}
                   onClick={() => onDateClick(day)}
                 >
                   <span className="day-number">{day.getDate()}</span>
                   {isLogged && <span className="logged-dot"></span>}
-                  {isPredictedPeriod && <span className="period-dot"></span>}
                 </button>
               );
             })}
@@ -67,11 +90,23 @@ function Calendar({ selectedDate, onDateClick, isDateLogged, isDatePredictedPeri
       <div className="calendar-legend">
         <div className="legend-item">
           <span className="legend-dot logged"></span>
-          <span>Days Logged</span>
+          <span>Logged</span>
         </div>
         <div className="legend-item">
-          <span className="legend-dot period"></span>
-          <span>Predicted Period</span>
+          <span className="legend-dot phase-menstrual-legend"></span>
+          <span>Period</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot phase-follicular-legend"></span>
+          <span>Follicular</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot phase-ovulation-legend"></span>
+          <span>Ovulation</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot phase-luteal-legend"></span>
+          <span>Luteal</span>
         </div>
       </div>
     </div>
