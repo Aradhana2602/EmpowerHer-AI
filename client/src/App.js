@@ -66,6 +66,20 @@ function App() {
     }
   };
 
+  const handleCycleSetupSubmit = async (data) => {
+    try {
+      setLoading(true);
+      await axios.post(`${API_URL}/cycle`, data);
+      await fetchCycleInfo();
+      setShowCycleSetup(false);
+    } catch (error) {
+      console.error('Error saving cycle info:', error);
+      alert('Failed to save cycle setup. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchPredictedDays = useCallback(async () => {
     try {
       const res = await axios.get(
@@ -176,7 +190,7 @@ function App() {
   }
 
   if (showCycleSetup) {
-    return <CycleSetup onSubmit={()=>{}} />;
+    return <CycleSetup onSubmit={handleCycleSetupSubmit} loading={loading} />;
   }
 
   // ---------------- MAIN UI ----------------
@@ -194,7 +208,10 @@ function App() {
               selectedDate={selectedDate}
               onDateClick={setSelectedDate}
               isDateLogged={(d)=>loggedDates.includes(d.toDateString())}
-              isDatePredictedPeriod={()=>false}
+              isDatePredictedPeriod={(d) => {
+                const dString = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                return predictedPeriodDays.includes(dString);
+              }}
             />
 
             <button onClick={handleGetInsights}>
