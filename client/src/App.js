@@ -114,12 +114,20 @@ function App() {
   const handleLogSubmit = async (data) => {
     try {
       setLoading(true);
-      const dateStr = selectedDate.toISOString().split('T')[0];
+      const dateStr = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
       const res = await axios.post(`${API_URL}/logs`, { date: dateStr, ...data });
 
       const updated = logs.filter(l => l.date !== dateStr);
       updated.push(res.data);
       setLogs(updated);
+
+      if (!loggedDates.includes(selectedDate.toDateString())) {
+        setLoggedDates([...loggedDates, selectedDate.toDateString()]);
+      }
+      alert('Day logged successfully!');
+    } catch (e) {
+      console.error('Failed to log day:', e);
+      alert('Failed to save log. Make sure backend is running.');
     } finally {
       setLoading(false);
     }
@@ -227,7 +235,11 @@ function App() {
             {!showInsights ? (
               <LoggingForm onSubmit={handleLogSubmit} />
             ) : (
-              <InsightsPanel insights={insights} />
+              <InsightsPanel 
+                insights={insights} 
+                cycleInfo={cycleInfo} 
+                onBack={() => setShowInsights(false)} 
+              />
             )}
           </div>
 
