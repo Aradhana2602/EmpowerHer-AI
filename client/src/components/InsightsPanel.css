@@ -63,7 +63,16 @@
 .insight-card.productivity { background: #dcfce7; border: none; }
 .insight-card.symptoms { background: #fee2e2; border: none; }
 .insight-card.mood { background: #f3e8ff; border: none; }
-.insight-card.cycle { background: #fce7f3; border: none; }
+.insight-card.cycle { 
+  background: #fce7f3; 
+  border: none; 
+  grid-column: 1 / -1; 
+}
+.insight-card.career { 
+  background: #dbeafe; 
+  border: none; 
+  grid-column: 1 / -1; 
+}
 
 .insight-stat {
   display: flex;
@@ -285,7 +294,7 @@
   to { opacity: 1; }
 }
 
-.insight-card.career { background: #dbeafe; border: none; }
+
 
 .career-phases {
   display: flex;

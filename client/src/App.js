@@ -149,16 +149,22 @@ function App() {
   };
 
   // ---------------- INSIGHTS ----------------
-  const handleGetInsights = () => {
-    const high = logs.filter(l => l.energy >= 4).length;
-    const low = logs.filter(l => l.energy <= 2).length;
-
-    let data = [];
-    if (high > low) data.push("⚡ High performance days detected");
-    if (low >= 3) data.push("⚠️ Possible burnout");
-
-    setInsights(data);
-    setShowInsights(true);
+  const handleGetInsights = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${API_URL}/insights`);
+      setInsights(res.data);
+      setShowInsights(true);
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        alert(e.response.data.error || "Need more data for insights.");
+      } else {
+        console.error(e);
+        alert('Failed to load AI Insights.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ---------------- NOTIFICATIONS ----------------
