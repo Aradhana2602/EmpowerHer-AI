@@ -266,7 +266,7 @@ function App() {
   if (showCycleSetup) {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <header className="app-header">
             <h1>🔄 Menstrual Cycle Setup</h1>
@@ -283,7 +283,7 @@ function App() {
   if (currentPage === 'meeting') {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <MeetingAssistant cyclePhase={cyclePhase} logs={logs} />
         <div className="streamlit-container">
           <iframe
@@ -306,7 +306,7 @@ function App() {
   if (currentPage === 'safety') {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <SafetyPanel logs={logs} />
       </div>
     );
@@ -315,7 +315,7 @@ function App() {
   if (currentPage === 'copilot') {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <main className="app-main" style={{ display: 'block' }}>
             <CopilotPanel cyclePhase={cyclePhase} />
@@ -328,7 +328,7 @@ function App() {
   if (currentPage === 'resume') {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <main className="app-main" style={{ display: 'block' }}>
             <ResumeEvaluator />
@@ -341,7 +341,7 @@ function App() {
   // ---------------- MAIN UI (Dashboard) ----------------
   return (
     <div className="app-wrapper">
-      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
       
       <div className="app-container">
         <NotificationsPanel notifications={notifications} />
