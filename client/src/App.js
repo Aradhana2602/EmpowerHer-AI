@@ -134,18 +134,80 @@ function App() {
   };
 
   // ---------------- TASK ----------------
-  const addTask = (task) => setTasks([...tasks, task]);
+  const getPhaseForDate = (dateToTest) => {
+    if (!cycleInfo || !cycleInfo.isConfigured || !cycleInfo.lastPeriodStartDate) return null;
+    const lastPeriod = new Date(cycleInfo.lastPeriodStartDate);
+    lastPeriod.setHours(0, 0, 0, 0);
+    const target = new Date(dateToTest);
+    target.setHours(0, 0, 0, 0);
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+    let diffInDays = Math.round((target - lastPeriod) / msPerDay);
+
+    if (diffInDays < 0) {
+      const cycles = Math.ceil(Math.abs(diffInDays) / cycleInfo.cycleLength);
+      diffInDays += cycles * cycleInfo.cycleLength;
+    }
+
+    const dayInCycle = diffInDays % cycleInfo.cycleLength;
+
+    if (dayInCycle < cycleInfo.periodDuration) return 'menstrual';
+    if (dayInCycle < cycleInfo.periodDuration + 7) return 'follicular';
+    if (dayInCycle < cycleInfo.periodDuration + 14) return 'ovulation';
+    return 'luteal';
+  };
+
+  const getEnergyForPhase = (phase) => {
+    switch(phase) {
+      case 'menstrual': return 2;
+      case 'follicular': return 4;
+      case 'ovulation': return 5;
+      case 'luteal': return 3;
+      default: return 3;
+    }
+  };
+
+  const addTask = (task) => {
+    let assignedDate = new Date(selectedDate);
+    
+    if (cycleInfo && cycleInfo.isConfigured) {
+      const today = new Date();
+      // Search the next 30 days for a phase that matches the exact energy requirement
+      let bestDate = null;
+      for (let i = 0; i < 30; i++) {
+        const testDate = new Date(today);
+        testDate.setDate(testDate.getDate() + i);
+        const phase = getPhaseForDate(testDate);
+        const energy = getEnergyForPhase(phase);
+
+        if (task.effort === 'deep' && energy >= 4) {
+          bestDate = testDate;
+          break;
+        } else if (task.effort === 'light' && energy <= 3) {
+          bestDate = testDate;
+          break;
+        }
+      }
+      if (bestDate) {
+        assignedDate = bestDate;
+      }
+    }
+    
+    // Store assigned date as an ISO string component
+    task.date = new Date(assignedDate.getTime() - (assignedDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    setTasks([...tasks, task]);
+  };
 
   const suggestBestTime = (task) => {
-    if (!cyclePhase) return "No data yet";
+    if (!task.date) return "No date assigned";
+    const dateObj = new Date(task.date + 'T00:00:00');
+    // adjust for local timezone visually
+    const formatted = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
-    if (task.effort === "deep" && cyclePhase.typicalEnergy >= 4)
-      return "🚀 Do now";
+    if (task.effort === "deep")
+      return `🚀 Scheduled: ${formatted} (High Energy)`;
 
-    if (task.effort === "light")
-      return "👍 Good time";
-
-    return "⏳ Later";
+    return `👍 Scheduled: ${formatted} (Pacing)`;
   };
 
   // ---------------- INSIGHTS ----------------
@@ -227,6 +289,7 @@ function App() {
               onDateClick={setSelectedDate}
               isDateLogged={(d)=>loggedDates.includes(d.toDateString())}
               cycleInfo={cycleInfo}
+              tasks={tasks}
             />
 
             <button className="insights-btn" onClick={handleGetInsights}>
