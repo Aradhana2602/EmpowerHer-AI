@@ -11,6 +11,7 @@ import BottomNav from './components/BottomNav';
 import TaskPlanner from './components/TaskPlanner';
 import MeetingAssistant from './components/MeetingAssistant';
 import SafetyPanel from './components/SafetyPanel';
+import ResumeEvaluator from './components/ResumeEvaluator';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -243,12 +244,42 @@ function App() {
   }, [logs, cyclePhase]);
 
   // ---------------- ROUTES ----------------
+  if (showCycleSetup) {
+    return (
+      <div className="app-wrapper">
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="app-container">
+          <header className="app-header">
+            <h1>🔄 Menstrual Cycle Setup</h1>
+            <p>Let's train your AI with your cycle information</p>
+          </header>
+          <main className="app-main">
+            <CycleSetup onSubmit={handleCycleSetup} loading={loading} />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   if (currentPage === 'meeting') {
     return (
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
         <MeetingAssistant cyclePhase={cyclePhase} logs={logs} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="streamlit-container">
+          <iframe
+            src="https://ecetpgml2gtkkxarnyfuvp.streamlit.app/"
+            style={{
+              width: '100%',
+              height: 'calc(100vh - 70px)',
+              border: 'none',
+              display: 'block'
+            }}
+            title="AI Analysis"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
+          />
+        </div>
       </div>
     );
   }
@@ -265,6 +296,12 @@ function App() {
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
         <CopilotPanel cyclePhase={cyclePhase} />
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="app-container">
+          <main className="app-main" style={{ display: 'block' }}>
+            <CopilotPanel cyclePhase={cyclePhase} />
+          </main>
+        </div>
       </div>
     );
   }
@@ -277,6 +314,69 @@ function App() {
   return (
     <div className="app-wrapper">
       <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+  // Resume Evaluation page
+  if (currentPage === 'resume') {
+    return (
+      <div className="app-wrapper">
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="app-container">
+          <main className="app-main" style={{ display: 'block' }}>
+            <ResumeEvaluator />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Dashboard page (original)
+  return (
+    <div className="app-wrapper">
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <div className="app-container">
+        <NotificationsPanel />
+        
+        <header className="app-header">
+          <div className="hero-card">
+            <div className="hero-card-top">
+              <div>
+                <p className="hero-title">Keep Track of your Periods</p>
+                <h1>Hey, {cycleInfo?.userName || 'User'}</h1>
+                <p className="hero-subtitle">Your personal cycle+workflow dashboard</p>
+              </div>
+              <div className="ring-widget">
+                <div className="ring-outer" style={{ background: `conic-gradient(#f43f5e 0 ${getCycleProgress()}%, #fca5a5 ${getCycleProgress()}% 100%)` }}>
+                  <div className="ring-inner">
+                    <span className="ring-day">{cyclePhase ? `Day ${cyclePhase.dayInPhase + 1}` : 'Day 1'}</span>
+                    <span className="ring-phase">{cyclePhase ? `${cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)}` : 'Menstrual'}</span>
+                  </div>
+                </div>
+                <p className="ring-note">Ovulation window in {cyclePhase ? `${Math.max(0, 14 - cyclePhase.dayInPhase)} days` : '9 days'}</p>
+                <p className="ring-progress">Cycle progress: {getCycleProgress().toFixed(0)}%</p>
+              </div>
+            </div>
+
+            <div className="hero-secondary">
+              <button className="hero-btn phase-pill">Period</button>
+              <button className="hero-btn phase-pill">Pre-ovulation</button>
+              <button className="hero-btn phase-pill">Ovulation</button>
+              <button className="hero-btn phase-pill">Luteal</button>
+            </div>
+          </div>
+
+          <div className="quick-stats">
+            <div className="stat-card">
+              <h4>Next period</h4>
+              <p>{getNextPeriodDate() ? new Date(getNextPeriodDate()).toLocaleDateString() : 'Unknown'}</p>
+            </div>
+            <div className="stat-card">
+              <h4>Days left</h4>
+              <p>{getDaysLeftToPeriod() ?? '--'}</p>
+            </div>
+            <div className="stat-card">
+              <h4>Mood streak</h4>
+              <p>{getMoodStreak()} days</p>
+            </div>
+          </div>
 
       <NotificationsPanel notifications={notifications} />
 
