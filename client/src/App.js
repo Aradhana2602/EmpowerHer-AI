@@ -173,7 +173,6 @@ function App() {
     
     if (cycleInfo && cycleInfo.isConfigured) {
       const today = new Date();
-      // Search the next 30 days for a phase that matches the exact energy requirement
       let bestDate = null;
       for (let i = 0; i < 30; i++) {
         const testDate = new Date(today);
@@ -194,7 +193,6 @@ function App() {
       }
     }
     
-    // Store assigned date as an ISO string component
     task.date = new Date(assignedDate.getTime() - (assignedDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
     setTasks([...tasks, task]);
   };
@@ -202,7 +200,6 @@ function App() {
   const suggestBestTime = (task) => {
     if (!task.date) return "No date assigned";
     const dateObj = new Date(task.date + 'T00:00:00');
-    // adjust for local timezone visually
     const formatted = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
     if (task.effort === "deep")
@@ -243,18 +240,40 @@ function App() {
     setNotifications(notes);
   }, [logs, cyclePhase]);
 
+  // ---------------- HELPER METHODS ----------------
+  const getCycleProgress = () => {
+    if (!cyclePhase || !cycleInfo) return 0;
+    return (cyclePhase.dayInPhase / cycleInfo.cycleLength) * 100;
+  };
+
+  const getNextPeriodDate = () => {
+    if (predictedPeriodDays && predictedPeriodDays.length > 0) return predictedPeriodDays[0];
+    return null;
+  };
+
+  const getDaysLeftToPeriod = () => {
+    const next = getNextPeriodDate();
+    if (!next) return null;
+    const diff = new Date(next).getTime() - new Date().getTime();
+    return Math.floor(diff / (1000 * 3600 * 24));
+  };
+
+  const getMoodStreak = () => {
+    return logs.length;
+  };
+
   // ---------------- ROUTES ----------------
   if (showCycleSetup) {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
         <div className="app-container">
           <header className="app-header">
             <h1>🔄 Menstrual Cycle Setup</h1>
             <p>Let's train your AI with your cycle information</p>
           </header>
-          <main className="app-main">
-            <CycleSetup onSubmit={handleCycleSetup} loading={loading} />
+          <main className="app-main" style={{ display: 'block' }}>
+            <CycleSetup onSubmit={handleCycleSetupSubmit} loading={loading} />
           </main>
         </div>
       </div>
@@ -266,7 +285,6 @@ function App() {
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
         <MeetingAssistant cyclePhase={cyclePhase} logs={logs} />
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="streamlit-container">
           <iframe
             src="https://ecetpgml2gtkkxarnyfuvp.streamlit.app/"
@@ -274,7 +292,8 @@ function App() {
               width: '100%',
               height: 'calc(100vh - 70px)',
               border: 'none',
-              display: 'block'
+              display: 'block',
+              marginTop: '40px'
             }}
             title="AI Analysis"
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
@@ -283,20 +302,20 @@ function App() {
       </div>
     );
   }
- if (currentPage === 'safety') {
-  return (
-    <div className="app-wrapper">
-      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-      <SafetyPanel logs={logs} />
-    </div>
-  );
-}
+
+  if (currentPage === 'safety') {
+    return (
+      <div className="app-wrapper">
+        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <SafetyPanel logs={logs} />
+      </div>
+    );
+  }
+
   if (currentPage === 'copilot') {
     return (
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-        <CopilotPanel cyclePhase={cyclePhase} />
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <main className="app-main" style={{ display: 'block' }}>
             <CopilotPanel cyclePhase={cyclePhase} />
@@ -306,19 +325,10 @@ function App() {
     );
   }
 
-  if (showCycleSetup) {
-    return <CycleSetup onSubmit={handleCycleSetupSubmit} loading={loading} />;
-  }
-
-  // ---------------- MAIN UI ----------------
-  return (
-    <div className="app-wrapper">
-      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-  // Resume Evaluation page
   if (currentPage === 'resume') {
     return (
       <div className="app-wrapper">
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
         <div className="app-container">
           <main className="app-main" style={{ display: 'block' }}>
             <ResumeEvaluator />
@@ -328,12 +338,13 @@ function App() {
     );
   }
 
-  // Dashboard page (original)
+  // ---------------- MAIN UI (Dashboard) ----------------
   return (
     <div className="app-wrapper">
-      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+      
       <div className="app-container">
-        <NotificationsPanel />
+        <NotificationsPanel notifications={notifications} />
         
         <header className="app-header">
           <div className="hero-card">
@@ -377,12 +388,9 @@ function App() {
               <p>{getMoodStreak()} days</p>
             </div>
           </div>
+        </header>
 
-      <NotificationsPanel notifications={notifications} />
-
-      <div className="app-container">
         <main className="app-main">
-
           <div className="left-panel">
             <Calendar
               selectedDate={selectedDate}
@@ -412,7 +420,6 @@ function App() {
             )}
           </div>
 
-          {/* ✅ TASK PLANNER FIXED POSITION */}
           <div className="right-panel">
             <TaskPlanner
               tasks={tasks}
@@ -420,7 +427,6 @@ function App() {
               suggestBestTime={suggestBestTime}
             />
           </div>
-
         </main>
 
         <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
