@@ -8,11 +8,8 @@ function CycleSetup({ onSubmit, loading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!lastPeriodStartDate) {
-      alert('Please select the last period start date');
-      return;
-    }
-    onSubmit({ cycleLength, periodDuration, lastPeriodStartDate });
+    const finalDate = lastPeriodStartDate || defaultDateString;
+    onSubmit({ cycleLength, periodDuration, lastPeriodStartDate: finalDate });
   };
 
   // Set default date to 30 days ago

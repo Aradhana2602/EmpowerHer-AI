@@ -8,9 +8,11 @@ import NotificationsPanel from './components/NotificationsPanel';
 import Navbar from './components/Navbar';
 import CopilotPanel from './components/CopilotPanel';
 import BottomNav from './components/BottomNav';
+import TaskPlanner from './components/TaskPlanner';
+import MeetingAssistant from './components/MeetingAssistant';
+import SafetyPanel from './components/SafetyPanel';
 import ResumeEvaluator from './components/ResumeEvaluator';
 import './App.css';
-
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -27,8 +29,10 @@ function App() {
   const [cyclePhase, setCyclePhase] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [streamlitOpened, setStreamlitOpened] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
-  // Handle Streamlit page redirect
+  // ---------------- STREAMLIT ----------------
   useEffect(() => {
     if (currentPage === 'streamlit' && !streamlitOpened) {
       window.open('https://ecetpgml2gtkkxarnyfuvp.streamlit.app/', '_blank');
@@ -37,7 +41,7 @@ function App() {
     }
   }, [currentPage, streamlitOpened]);
 
-  // Fetch all logs and cycle info on mount
+  // ---------------- FETCH ----------------
   useEffect(() => {
     fetchAllLogs();
     fetchCycleInfo();
@@ -45,182 +49,139 @@ function App() {
 
   const fetchAllLogs = async () => {
     try {
-      const response = await axios.get(`${API_URL}/logs`);
-      setLogs(response.data);
-      const dates = response.data.map(log => new Date(log.date).toDateString());
-      setLoggedDates(dates);
-    } catch (error) {
-      console.error('Error fetching logs:', error);
+      const res = await axios.get(`${API_URL}/logs`);
+      setLogs(res.data);
+      setLoggedDates(res.data.map(l => new Date(l.date).toDateString()));
+    } catch (e) {
+      console.error(e);
     }
   };
 
   const fetchCycleInfo = async () => {
     try {
-      const response = await axios.get(`${API_URL}/cycle`);
-      setCycleInfo(response.data);
-      if (!response.data.isConfigured) {
-        setShowCycleSetup(true);
-      }
+      const res = await axios.get(`${API_URL}/cycle`);
+      setCycleInfo(res.data);
+      if (!res.data.isConfigured) setShowCycleSetup(true);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCycleSetupSubmit = async (data) => {
+    try {
+      setLoading(true);
+      await axios.post(`${API_URL}/cycle`, data);
+      await fetchCycleInfo();
+      setShowCycleSetup(false);
     } catch (error) {
-      console.error('Error fetching cycle info:', error);
+      console.error('Error saving cycle info:', error);
+      if (error.code === 'ERR_NETWORK') {
+        alert('Server connection failed. Ensure your backend server is running on port 5000!');
+      } else {
+        alert('Failed to save cycle setup. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchPredictedDays = useCallback(async () => {
     try {
-      const year = selectedDate.getFullYear();
-      const month = selectedDate.getMonth() + 1;
-      const response = await axios.get(`${API_URL}/cycle/predict/${year}/${month}`);
-      setPredictedPeriodDays(response.data.predictedDays || []);
-    } catch (error) {
-      console.error('Error fetching predicted days:', error);
-    }
+      const res = await axios.get(
+        `${API_URL}/cycle/predict/${selectedDate.getFullYear()}/${selectedDate.getMonth()+1}`
+      );
+      setPredictedPeriodDays(res.data.predictedDays || []);
+    } catch (e) {}
   }, [selectedDate]);
 
   const fetchCyclePhase = useCallback(async () => {
     try {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      const response = await axios.get(`${API_URL}/cycle/phase/${dateStr}`);
-      setCyclePhase(response.data);
-    } catch (error) {
-      console.error('Error fetching cycle phase:', error);
-    }
+      const res = await axios.get(
+        `${API_URL}/cycle/phase/${selectedDate.toISOString().split('T')[0]}`
+      );
+      setCyclePhase(res.data);
+    } catch (e) {}
   }, [selectedDate]);
 
-  // Fetch predicted period days and phase when cycle info changes or date changes
   useEffect(() => {
     if (cycleInfo?.isConfigured) {
       fetchPredictedDays();
       fetchCyclePhase();
     }
-  }, [cycleInfo?.isConfigured, fetchPredictedDays, fetchCyclePhase]);
+  }, [cycleInfo, fetchPredictedDays, fetchCyclePhase]);
+  
 
-  const handleDateClick = (date) => {
-    setSelectedDate(date);
-    setShowInsights(false);
-  };
-
-  const handleLogSubmit = async (logData) => {
+  // ---------------- LOGGING ----------------
+  const handleLogSubmit = async (data) => {
     try {
       setLoading(true);
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      
-      const response = await axios.post(`${API_URL}/logs`, {
-        date: dateStr,
-        ...logData
-      });
+      const dateStr = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      const res = await axios.post(`${API_URL}/logs`, { date: dateStr, ...data });
 
-      // Update logs
-      const updatedLogs = logs.filter(log => log.date !== dateStr);
-      updatedLogs.push(response.data);
-      setLogs(updatedLogs);
-      
-      // Update logged dates
-      const dateString = new Date(response.data.date).toDateString();
-      if (!loggedDates.includes(dateString)) {
-        setLoggedDates([...loggedDates, dateString]);
+      const updated = logs.filter(l => l.date !== dateStr);
+      updated.push(res.data);
+      setLogs(updated);
+
+      if (!loggedDates.includes(selectedDate.toDateString())) {
+        setLoggedDates([...loggedDates, selectedDate.toDateString()]);
       }
-
-      alert('Log saved successfully!');
-    } catch (error) {
-      console.error('Error saving log:', error);
-      alert('Error saving log. Please try again.');
+      alert('Day logged successfully!');
+    } catch (e) {
+      console.error('Failed to log day:', e);
+      alert('Failed to save log. Make sure backend is running.');
     } finally {
       setLoading(false);
     }
   };
 
+  // ---------------- TASK ----------------
+  const addTask = (task) => setTasks([...tasks, task]);
+
+  const suggestBestTime = (task) => {
+    if (!cyclePhase) return "No data yet";
+
+    if (task.effort === "deep" && cyclePhase.typicalEnergy >= 4)
+      return "🚀 Do now";
+
+    if (task.effort === "light")
+      return "👍 Good time";
+
+    return "⏳ Later";
+  };
+
+  // ---------------- INSIGHTS ----------------
   const handleGetInsights = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/insights`, {
-        params: { limit: 100 }
-      });
-      setInsights(response.data);
+      const res = await axios.get(`${API_URL}/insights`);
+      setInsights(res.data);
       setShowInsights(true);
-    } catch (error) {
-      console.error('Error fetching insights:', error);
-      alert('Error fetching insights. Make sure you have at least 3 days of logged data.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCycleSetup = async (cycleData) => {
-    try {
-      setLoading(true);
-      const response = await axios.post(`${API_URL}/cycle`, cycleData);
-      setCycleInfo(response.data);
-      setShowCycleSetup(false);
-      fetchPredictedDays();
-      alert('Cycle information saved! Your period days will be automatically predicted.');
-    } catch (error) {
-      console.error('Error saving cycle info:', error);
-      alert('Error saving cycle information. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isDateLogged = (date) => {
-    return loggedDates.includes(date.toDateString());
-  };
-
-  const isDatePredictedPeriod = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return predictedPeriodDays.includes(dateStr);
-  };
-
-  const getTodayLog = () => {
-    const dateStr = selectedDate.toISOString().split('T')[0];
-    return logs.find(log => log.date === dateStr);
-  };
-
-  const getMoodStreak = () => {
-    if (!logs.length) return 0;
-    const sorted = [...logs].sort((a, b) => new Date(b.date) - new Date(a.date));
-    let streak = 0;
-    let prevDate = new Date(sorted[0].date);
-    for (const log of sorted) {
-      const current = new Date(log.date);
-      if (streak === 0 || (prevDate - current) / (1000 * 60 * 60 * 24) === 1) {
-        streak += 1;
-        prevDate = current;
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        alert(e.response.data.error || "Need more data for insights.");
       } else {
-        break;
+        console.error(e);
+        alert('Failed to load AI Insights.');
       }
+    } finally {
+      setLoading(false);
     }
-    return streak;
   };
 
-  const getNextPeriodDate = () => {
-    if (!predictedPeriodDays.length) return null;
-    const now = new Date();
-    const future = predictedPeriodDays
-      .map(d => new Date(d))
-      .filter(d => d >= now)
-      .sort((a, b) => a - b);
-    return future.length ? future[0] : new Date(predictedPeriodDays[0]);
-  };
+  // ---------------- NOTIFICATIONS ----------------
+  useEffect(() => {
+    let notes = [];
 
-  const getDaysLeftToPeriod = () => {
-    const next = getNextPeriodDate();
-    if (!next) return null;
-    const today = new Date();
-    const diff = Math.ceil((next - today) / (1000 * 60 * 60 * 24));
-    return diff >= 0 ? diff : 0;
-  };
+    if (cyclePhase?.typicalEnergy >= 4)
+      notes.push("⚡ High energy — do important work");
 
-  const getCycleProgress = () => {
-    if (!cycleInfo?.cycleLength) return 0;
-    const start = new Date(cycleInfo.lastPeriodStartDate);
-    const today = new Date();
+    if (cyclePhase?.typicalEnergy <= 2)
+      notes.push("💤 Low energy — rest");
 
-    const daysSince = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-    const progress = ((daysSince % cycleInfo.cycleLength) / cycleInfo.cycleLength) * 100;
-    return Math.max(0, Math.min(progress, 100));
-  };
+    setNotifications(notes);
+  }, [logs, cyclePhase]);
 
+  // ---------------- ROUTES ----------------
   if (showCycleSetup) {
     return (
       <div className="app-wrapper">
@@ -238,10 +199,11 @@ function App() {
     );
   }
 
-  // Streamlit page - with navbar
-  if (currentPage === 'streamlit') {
+  if (currentPage === 'meeting') {
     return (
       <div className="app-wrapper">
+        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <MeetingAssistant cyclePhase={cyclePhase} logs={logs} />
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="streamlit-container">
           <iframe
@@ -259,11 +221,19 @@ function App() {
       </div>
     );
   }
-
-  // Copilot page
+ if (currentPage === 'safety') {
+  return (
+    <div className="app-wrapper">
+      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+      <SafetyPanel logs={logs} />
+    </div>
+  );
+}
   if (currentPage === 'copilot') {
     return (
       <div className="app-wrapper">
+        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
+        <CopilotPanel cyclePhase={cyclePhase} />
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <main className="app-main" style={{ display: 'block' }}>
@@ -274,6 +244,14 @@ function App() {
     );
   }
 
+  if (showCycleSetup) {
+    return <CycleSetup onSubmit={handleCycleSetupSubmit} loading={loading} />;
+  }
+
+  // ---------------- MAIN UI ----------------
+  return (
+    <div className="app-wrapper">
+      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
   // Resume Evaluation page
   if (currentPage === 'resume') {
     return (
@@ -338,70 +316,50 @@ function App() {
             </div>
           </div>
 
-          {cycleInfo?.isConfigured && (
-            <div className="cycle-info-badge">
-              🔄 Cycle Tracking Active • {cycleInfo.cycleLength}-day cycle
-              <button className="edit-cycle-btn" onClick={() => setShowCycleSetup(true)}>Edit</button>
-            </div>
-          )}
-        </header>
+      <NotificationsPanel notifications={notifications} />
 
+      <div className="app-container">
         <main className="app-main">
+
           <div className="left-panel">
-            <Calendar 
+            <Calendar
               selectedDate={selectedDate}
-              onDateClick={handleDateClick}
-              isDateLogged={isDateLogged}
-              isDatePredictedPeriod={isDatePredictedPeriod}
-              loggedDates={loggedDates}
-              predictedPeriodDays={predictedPeriodDays}
+              onDateClick={setSelectedDate}
+              isDateLogged={(d)=>loggedDates.includes(d.toDateString())}
+              cycleInfo={cycleInfo}
             />
-            {cyclePhase && (
-              <div className="cycle-phase-card">
-                <h3>Current Phase</h3>
-                <p className="phase-name">{cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)}</p>
-                <p className="phase-energy">Expected Energy: {cyclePhase.typicalEnergy}/5</p>
-              </div>
-            )}
-            <button 
-              className="insights-btn"
-              onClick={handleGetInsights}
-              disabled={loading || logs.length < 3}
-            >
-              🧠 Get AI Insights ({logs.length} days logged)
+
+            <button className="insights-btn" onClick={handleGetInsights}>
+              🧠 Insights
+            </button>
+            <button className="insights-btn" style={{ marginTop: '15px', background: '#fdf2f8', border: '2px solid #fbcfe8' }} onClick={() => setShowCycleSetup(true)}>
+              ⚙️ Edit Cycle Setup
             </button>
           </div>
 
           <div className="center-panel">
-            <h2 className="date-header">
-              {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-              {isDateLogged(selectedDate) && <span className="logged-badge">✓ Logged</span>}
-              {isDatePredictedPeriod(selectedDate) && <span className="period-badge">🩸 Predicted Period</span>}
-            </h2>
-
-            {!showInsights && (
-              <LoggingForm 
-                onSubmit={handleLogSubmit}
-                loading={loading}
-                initialData={getTodayLog()}
-                cyclePhase={cyclePhase}
-              />
-            )}
-
-            {showInsights && insights && (
+            {!showInsights ? (
+              <LoggingForm onSubmit={handleLogSubmit} />
+            ) : (
               <InsightsPanel 
-                insights={insights}
-                cycleInfo={cycleInfo}
-                onBack={() => setShowInsights(false)}
+                insights={insights} 
+                cycleInfo={cycleInfo} 
+                onBack={() => setShowInsights(false)} 
               />
             )}
           </div>
+
+          {/* ✅ TASK PLANNER FIXED POSITION */}
+          <div className="right-panel">
+            <TaskPlanner
+              tasks={tasks}
+              addTask={addTask}
+              suggestBestTime={suggestBestTime}
+            />
+          </div>
+
         </main>
+
         <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
       </div>
     </div>
