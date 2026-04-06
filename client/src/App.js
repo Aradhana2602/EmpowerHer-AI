@@ -74,12 +74,7 @@ function App() {
       await fetchCycleInfo();
       setShowCycleSetup(false);
     } catch (error) {
-      console.error('Error saving cycle info:', error);
-      if (error.code === 'ERR_NETWORK') {
-        alert('Server connection failed. Ensure your backend server is running on port 5000!');
-      } else {
-        alert('Failed to save cycle setup. Please try again.');
-      }
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -109,47 +104,28 @@ function App() {
       fetchCyclePhase();
     }
   }, [cycleInfo, fetchPredictedDays, fetchCyclePhase]);
-  
 
-  // ---------------- LOGGING ----------------
   const handleLogSubmit = async (data) => {
     try {
       setLoading(true);
-      const dateStr = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      const dateStr = selectedDate.toISOString().split('T')[0];
       const res = await axios.post(`${API_URL}/logs`, { date: dateStr, ...data });
-
-      const updated = logs.filter(l => l.date !== dateStr);
-      updated.push(res.data);
-      setLogs(updated);
-
-      if (!loggedDates.includes(selectedDate.toDateString())) {
-        setLoggedDates([...loggedDates, selectedDate.toDateString()]);
-      }
-      alert('Day logged successfully!');
+      setLogs([...logs, res.data]);
     } catch (e) {
-      console.error('Failed to log day:', e);
-      alert('Failed to save log. Make sure backend is running.');
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- TASK ----------------
   const addTask = (task) => setTasks([...tasks, task]);
 
   const suggestBestTime = (task) => {
-    if (!cyclePhase) return "No data yet";
-
-    if (task.effort === "deep" && cyclePhase.typicalEnergy >= 4)
-      return "🚀 Do now";
-
-    if (task.effort === "light")
-      return "👍 Good time";
-
-    return "⏳ Later";
+    if (!cyclePhase) return "No data";
+    if (task.effort === "deep" && cyclePhase.typicalEnergy >= 4) return "Do now";
+    return "Later";
   };
 
-  // ---------------- INSIGHTS ----------------
   const handleGetInsights = async () => {
     try {
       setLoading(true);
@@ -157,206 +133,95 @@ function App() {
       setInsights(res.data);
       setShowInsights(true);
     } catch (e) {
-      if (e.response && e.response.status === 400) {
-        alert(e.response.data.error || "Need more data for insights.");
-      } else {
-        console.error(e);
-        alert('Failed to load AI Insights.');
-      }
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- NOTIFICATIONS ----------------
   useEffect(() => {
     let notes = [];
-
-    if (cyclePhase?.typicalEnergy >= 4)
-      notes.push("⚡ High energy — do important work");
-
-    if (cyclePhase?.typicalEnergy <= 2)
-      notes.push("💤 Low energy — rest");
-
+    if (cyclePhase?.typicalEnergy >= 4) notes.push("High energy");
+    if (cyclePhase?.typicalEnergy <= 2) notes.push("Low energy");
     setNotifications(notes);
-  }, [logs, cyclePhase]);
+  }, [cyclePhase]);
 
   // ---------------- ROUTES ----------------
-  if (showCycleSetup) {
-    return (
-      <div className="app-wrapper">
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <div className="app-container">
-          <header className="app-header">
-            <h1>🔄 Menstrual Cycle Setup</h1>
-            <p>Let's train your AI with your cycle information</p>
-          </header>
-          <main className="app-main">
-            <CycleSetup onSubmit={handleCycleSetup} loading={loading} />
-          </main>
-        </div>
-      </div>
-    );
-  }
-
-  if (currentPage === 'meeting') {
-    return (
-      <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-        <MeetingAssistant cyclePhase={cyclePhase} logs={logs} />
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <div className="streamlit-container">
-          <iframe
-            src="https://ecetpgml2gtkkxarnyfuvp.streamlit.app/"
-            style={{
-              width: '100%',
-              height: 'calc(100vh - 70px)',
-              border: 'none',
-              display: 'block'
-            }}
-            title="AI Analysis"
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
-          />
-        </div>
-      </div>
-    );
-  }
- if (currentPage === 'safety') {
-  return (
-    <div className="app-wrapper">
-      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-      <SafetyPanel logs={logs} />
-    </div>
-  );
-}
-  if (currentPage === 'copilot') {
-    return (
-      <div className="app-wrapper">
-        <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-        <CopilotPanel cyclePhase={cyclePhase} />
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <div className="app-container">
-          <main className="app-main" style={{ display: 'block' }}>
-            <CopilotPanel cyclePhase={cyclePhase} />
-          </main>
-        </div>
-      </div>
-    );
-  }
 
   if (showCycleSetup) {
     return <CycleSetup onSubmit={handleCycleSetupSubmit} loading={loading} />;
   }
 
-  // ---------------- MAIN UI ----------------
-  return (
-    <div className="app-wrapper">
-      <Navbar currentPage={currentPage} onPageChange={setCurrentPage} />
-  // Resume Evaluation page
-  if (currentPage === 'resume') {
+  if (currentPage === 'meeting') {
     return (
-      <div className="app-wrapper">
+      <div>
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <div className="app-container">
-          <main className="app-main" style={{ display: 'block' }}>
-            <ResumeEvaluator />
-          </main>
-        </div>
+        <MeetingAssistant />
       </div>
     );
   }
 
-  // Dashboard page (original)
+  if (currentPage === 'safety') {
+    return (
+      <div>
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <SafetyPanel logs={logs} />
+      </div>
+    );
+  }
+
+  if (currentPage === 'copilot') {
+    return (
+      <div>
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <CopilotPanel />
+      </div>
+    );
+  }
+
+  if (currentPage === 'resume') {
+    return (
+      <div>
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <ResumeEvaluator />
+      </div>
+    );
+  }
+
+  // ---------------- MAIN UI ----------------
   return (
     <div className="app-wrapper">
       <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <div className="app-container">
-        <NotificationsPanel />
-        
-        <header className="app-header">
-          <div className="hero-card">
-            <div className="hero-card-top">
-              <div>
-                <p className="hero-title">Keep Track of your Periods</p>
-                <h1>Hey, {cycleInfo?.userName || 'User'}</h1>
-                <p className="hero-subtitle">Your personal cycle+workflow dashboard</p>
-              </div>
-              <div className="ring-widget">
-                <div className="ring-outer" style={{ background: `conic-gradient(#f43f5e 0 ${getCycleProgress()}%, #fca5a5 ${getCycleProgress()}% 100%)` }}>
-                  <div className="ring-inner">
-                    <span className="ring-day">{cyclePhase ? `Day ${cyclePhase.dayInPhase + 1}` : 'Day 1'}</span>
-                    <span className="ring-phase">{cyclePhase ? `${cyclePhase.phase.charAt(0).toUpperCase() + cyclePhase.phase.slice(1)}` : 'Menstrual'}</span>
-                  </div>
-                </div>
-                <p className="ring-note">Ovulation window in {cyclePhase ? `${Math.max(0, 14 - cyclePhase.dayInPhase)} days` : '9 days'}</p>
-                <p className="ring-progress">Cycle progress: {getCycleProgress().toFixed(0)}%</p>
-              </div>
-            </div>
-
-            <div className="hero-secondary">
-              <button className="hero-btn phase-pill">Period</button>
-              <button className="hero-btn phase-pill">Pre-ovulation</button>
-              <button className="hero-btn phase-pill">Ovulation</button>
-              <button className="hero-btn phase-pill">Luteal</button>
-            </div>
-          </div>
-
-          <div className="quick-stats">
-            <div className="stat-card">
-              <h4>Next period</h4>
-              <p>{getNextPeriodDate() ? new Date(getNextPeriodDate()).toLocaleDateString() : 'Unknown'}</p>
-            </div>
-            <div className="stat-card">
-              <h4>Days left</h4>
-              <p>{getDaysLeftToPeriod() ?? '--'}</p>
-            </div>
-            <div className="stat-card">
-              <h4>Mood streak</h4>
-              <p>{getMoodStreak()} days</p>
-            </div>
-          </div>
 
       <NotificationsPanel notifications={notifications} />
 
       <div className="app-container">
         <main className="app-main">
 
-          <div className="left-panel">
-            <Calendar
-              selectedDate={selectedDate}
-              onDateClick={setSelectedDate}
-              isDateLogged={(d)=>loggedDates.includes(d.toDateString())}
-              cycleInfo={cycleInfo}
+          <Calendar
+            selectedDate={selectedDate}
+            onDateClick={setSelectedDate}
+            isDateLogged={(d)=>loggedDates.includes(d.toDateString())}
+            cycleInfo={cycleInfo}
+          />
+
+          {!showInsights ? (
+            <LoggingForm onSubmit={handleLogSubmit} />
+          ) : (
+            <InsightsPanel 
+              insights={insights} 
+              cycleInfo={cycleInfo} 
+              onBack={() => setShowInsights(false)} 
             />
+          )}
 
-            <button className="insights-btn" onClick={handleGetInsights}>
-              🧠 Insights
-            </button>
-            <button className="insights-btn" style={{ marginTop: '15px', background: '#fdf2f8', border: '2px solid #fbcfe8' }} onClick={() => setShowCycleSetup(true)}>
-              ⚙️ Edit Cycle Setup
-            </button>
-          </div>
+          <TaskPlanner
+            tasks={tasks}
+            addTask={addTask}
+            suggestBestTime={suggestBestTime}
+          />
 
-          <div className="center-panel">
-            {!showInsights ? (
-              <LoggingForm onSubmit={handleLogSubmit} />
-            ) : (
-              <InsightsPanel 
-                insights={insights} 
-                cycleInfo={cycleInfo} 
-                onBack={() => setShowInsights(false)} 
-              />
-            )}
-          </div>
-
-          {/* ✅ TASK PLANNER FIXED POSITION */}
-          <div className="right-panel">
-            <TaskPlanner
-              tasks={tasks}
-              addTask={addTask}
-              suggestBestTime={suggestBestTime}
-            />
-          </div>
+          <button onClick={handleGetInsights}>Get Insights</button>
 
         </main>
 
