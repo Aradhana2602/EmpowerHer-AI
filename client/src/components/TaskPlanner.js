@@ -19,7 +19,9 @@ function TaskPlanner({ tasks, addTask, suggestBestTime }) {
 
   return (
     <div className="task-planner">
-      <h3>📅 Smart Task Planner</h3>
+      <h3>
+        <span>📅</span> Smart Task Planner
+      </h3>
 
       {/* INPUT SECTION */}
       <div className="task-input">
@@ -35,18 +37,18 @@ function TaskPlanner({ tasks, addTask, suggestBestTime }) {
           <option value="light">Light Task</option>
         </select>
 
-        <button onClick={handleAddTask}>Add</button>
+        <button className="task-submit-btn" onClick={handleAddTask}>Add Task</button>
       </div>
 
       {/* TASK LIST */}
       <div className="task-list">
-        {tasks.length === 0 && <p>No tasks yet</p>}
+        {tasks.length === 0 && <p className="empty-tasks">No tasks added yet. Start planning!</p>}
 
         {tasks.map((task, index) => (
           <div key={index} className="task-card">
             <div className="task-header">
               <h4>{task.title}</h4>
-              <span className="effort-tag">{task.effort}</span>
+              <span className={`effort-tag ${task.effort}`}>{task.effort === 'deep' ? 'Deep Work' : 'Light Task'}</span>
             </div>
 
             <p className="task-suggestion">
