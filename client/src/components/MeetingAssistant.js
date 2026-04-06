@@ -7,7 +7,7 @@ function MeetingAssistant({ cyclePhase, logs }) {
   const [actions, setActions] = useState([]);
   const [decision, setDecision] = useState('');
   const [energyNote, setEnergyNote] = useState('');
-  // const [fatigue, setFatigue] = useState('');
+  const [fatigue, setFatigue] = useState('');
   
   const [isListening, setIsListening] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -32,6 +32,7 @@ function MeetingAssistant({ cyclePhase, logs }) {
     recognition.onstart = () => {
       setIsListening(true);
     };
+    
 
     recognition.onresult = (event) => {
       let transcript = "";

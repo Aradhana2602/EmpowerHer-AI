@@ -25,7 +25,7 @@ function App() {
   const [loggedDates, setLoggedDates] = useState([]);
   const [cycleInfo, setCycleInfo] = useState(null);
   const [showCycleSetup, setShowCycleSetup] = useState(false);
-  // const [predictedPeriodDays, setPredictedPeriodDays] = useState([]);
+  const [predictedPeriodDays, setPredictedPeriodDays] = useState([]);
   const [cyclePhase, setCyclePhase] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [streamlitOpened, setStreamlitOpened] = useState(false);
