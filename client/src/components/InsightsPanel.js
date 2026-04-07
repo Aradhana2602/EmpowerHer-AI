@@ -3,216 +3,277 @@ import './InsightsPanel.css';
 
 function InsightsPanel({ insights, cycleInfo, onBack }) {
   const getEnergyTrend = () => {
-    if (insights.avgEnergyLevel >= 4) return '⬆️ High Energy Trend';
-    if (insights.avgEnergyLevel >= 3) return '➡️ Stable Energy';
-    return '⬇️ Low Energy Trend';
+    if (insights.avgEnergyLevel >= 4) return { text: 'High Energy Trend', type: 'up' };
+    if (insights.avgEnergyLevel >= 3) return { text: 'Stable Energy', type: 'stable' };
+    return { text: 'Low Energy Trend', type: 'down' };
   };
 
   const getProductivityTrend = () => {
-    if (insights.avgProductivity >= 4) return '⬆️ High Productivity';
-    if (insights.avgProductivity >= 3) return '➡️ Moderate Productivity';
-    return '⬇️ Low Productivity';
+    if (insights.avgProductivity >= 4) return { text: 'High Productivity', type: 'up' };
+    if (insights.avgProductivity >= 3) return { text: 'Moderate Productivity', type: 'stable' };
+    return { text: 'Low Productivity', type: 'down' };
   };
+
+  const energyTrend = getEnergyTrend();
+  const prodTrend = getProductivityTrend();
 
   return (
     <div className="insights-panel">
-      <button className="back-btn" onClick={onBack}>← Back to Logging</button>
+      <div className="insights-header-nav">
+        <button className="back-btn" onClick={onBack}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to Logging
+        </button>
+      </div>
 
-      <h2 className="insights-title">🧠 Your AI Insights</h2>
+      <div className="insights-hero-header">
+        <h2 className="insights-title">AI Insights & Analytics</h2>
+        <p className="insights-subtitle">Your personalized biology-driven performance dashboard.</p>
+      </div>
 
-      <div className="insights-grid">
-        <div className="insight-card energy">
-          <h3>Energy Patterns</h3>
+      <div className="insights-primary-grid">
+        <div className="insight-card glass-card energy">
+          <div className="card-header">
+            <div className="icon-circle icon-yellow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <h3>Energy Patterns</h3>
+          </div>
           <div className="insight-stat">
             <span className="stat-value">{insights.avgEnergyLevel?.toFixed(1)}</span>
-            <span className="stat-label">/5 Average</span>
+            <span className="stat-label">/ 5 Avg</span>
           </div>
-          <p className="insight-trend">{getEnergyTrend()}</p>
+          <div className={`insight-trend-badge trend-${energyTrend.type}`}>
+            {energyTrend.type === 'up' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="18 15 12 9 6 15"></polyline></svg>}
+            {energyTrend.type === 'stable' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>}
+            {energyTrend.type === 'down' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6 9 12 15 18 9"></polyline></svg>}
+            <span>{energyTrend.text}</span>
+          </div>
+          
           {insights.bestEnergyDays && insights.bestEnergyDays.length > 0 && (
-            <div className="insight-detail">
-              <p className="detail-label">Peak Energy Days:</p>
-              <ul>
+            <div className="insight-detail-elegant">
+              <p className="detail-label-subtle">Recent Peak Energy</p>
+              <div className="pills-container">
                 {insights.bestEnergyDays.map(day => (
-                  <li key={day}>{day}</li>
+                  <span className="day-pill" key={day}>{day}</span>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="insight-card productivity">
-          <h3>Productivity Insights</h3>
+        <div className="insight-card glass-card productivity">
+          <div className="card-header">
+            <div className="icon-circle icon-green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            </div>
+            <h3>Productivity Insights</h3>
+          </div>
           <div className="insight-stat">
             <span className="stat-value">{insights.avgProductivity?.toFixed(1)}</span>
-            <span className="stat-label">/5 Average</span>
+            <span className="stat-label">/ 5 Avg</span>
           </div>
-          <p className="insight-trend">{getProductivityTrend()}</p>
+          <div className={`insight-trend-badge trend-${prodTrend.type}`}>
+            {prodTrend.type === 'up' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="18 15 12 9 6 15"></polyline></svg>}
+            {prodTrend.type === 'stable' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>}
+            {prodTrend.type === 'down' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6 9 12 15 18 9"></polyline></svg>}
+            <span>{prodTrend.text}</span>
+          </div>
+
           {insights.mostProductiveMood && (
-            <div className="insight-detail">
-              <p className="detail-label">Most Productive Mood:</p>
-              <p className="detail-value">{insights.mostProductiveMood}</p>
+            <div className="insight-detail-elegant">
+              <p className="detail-label-subtle">Most Productive Mood</p>
+              <div className="mood-pill mood-pill-highlight">
+                <span className="mood-dot" style={{backgroundColor: getMoodColor(insights.mostProductiveMood)}}></span>
+                {insights.mostProductiveMood}
+              </div>
             </div>
           )}
         </div>
+      </div>
 
-        <div className="insight-card symptoms">
-          <h3>Symptom Patterns</h3>
+      <div className="insights-secondary-grid">
+        <div className="insight-card glass-card symptoms">
+          <div className="card-header">
+            <div className="icon-circle icon-pink">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+            </div>
+            <h3>Symptom Patterns</h3>
+          </div>
           {insights.symptomFrequency && Object.keys(insights.symptomFrequency).length > 0 ? (
-            <div className="insight-detail">
-              <p className="detail-label">Most Common Symptoms:</p>
-              <ul className="symptoms-list">
-                {Object.entries(insights.symptomFrequency)
-                  .sort((a, b) => b[1] - a[1])
-                  .slice(0, 3)
-                  .map(([symptom, count]) => (
-                    <li key={symptom}>
-                      <span>{symptom}</span>
-                      <span className="count">{count} times</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
+            <ul className="symptoms-list-elegant">
+              {Object.entries(insights.symptomFrequency)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([symptom, count]) => (
+                  <li key={symptom}>
+                    <span className="symptom-name">{symptom}</span>
+                    <span className="symptom-count">{count}x</span>
+                  </li>
+                ))}
+            </ul>
           ) : (
-            <p className="no-data">Not enough data yet</p>
+            <div className="empty-state">
+              <div className="empty-circle"></div>
+              <p>Keep logging to see symptom patterns.</p>
+            </div>
           )}
         </div>
 
-        <div className="insight-card mood">
-          <h3>Mood Distribution</h3>
+        <div className="insight-card glass-card mood">
+          <div className="card-header">
+            <div className="icon-circle icon-purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+            </div>
+            <h3>Distribution</h3>
+          </div>
           {insights.moodFrequency && Object.keys(insights.moodFrequency).length > 0 ? (
-            <div className="mood-distribution">
+            <div className="mood-distribution-elegant">
               {Object.entries(insights.moodFrequency)
                 .sort((a, b) => b[1] - a[1])
+                .slice(0, 4)
                 .map(([mood, count]) => (
-                  <div key={mood} className="mood-bar">
-                    <span className="mood-name">{mood}</span>
-                    <div className="bar-container">
+                  <div key={mood} className="mood-bar-elegant">
+                    <div className="mood-label-wrapper">
+                      <span className="mood-name">{mood}</span>
+                      <span className="mood-count-subtle">{count}</span>
+                    </div>
+                    <div className="bar-container-elegant">
                       <div 
-                        className="bar-fill" 
+                        className="bar-fill-fluid" 
                         style={{
                           width: `${(count / insights.totalDaysLogged) * 100}%`,
                           backgroundColor: getMoodColor(mood)
                         }}
                       ></div>
                     </div>
-                    <span className="mood-count">{count}</span>
                   </div>
                 ))}
             </div>
           ) : (
-            <p className="no-data">Not enough data yet</p>
+             <div className="empty-state">
+              <div className="empty-circle"></div>
+              <p>Not enough mood data yet.</p>
+            </div>
           )}
         </div>
+      </div>
 
-        {cycleInfo && cycleInfo.isConfigured && (
-          <div className="insight-card cycle">
-            <h3>🔄 Cycle Tracking</h3>
-            <div className="insight-detail">
-              <p className="detail-label">Your Cycle:</p>
-              <p className="detail-value">{cycleInfo.cycleLength}-day cycle</p>
-              <p className="detail-value small">{cycleInfo.periodDuration}-day period</p>
-              <p className="cycle-description">The AI predicts your period days and tracks energy patterns across all cycle phases to optimize your productivity schedule.</p>
-            </div>
+      <div className="recommendations-section glass-card full-width">
+        <div className="section-header">
+          <div className="icon-circle icon-blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
           </div>
-        )}
+          <h3>AI Recommendations</h3>
+        </div>
+        
+        <div className="recommendations-grid">
+          {insights.recommendations && insights.recommendations.length > 0 ? (
+            insights.recommendations.map((rec, index) => {
+              // Extract emoji if present at start
+              const hasEmoji = /^[\u2600-\u27BF]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]|[\uD83D][\uDE80-\uDEFF]/g.test(rec);
+              const emoji = hasEmoji ? rec.match(/^[\u2600-\u27BF]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]|[\uD83D][\uDE80-\uDEFF]/g)[0] : '💡';
+              const text = hasEmoji ? rec.replace(/^[\u2600-\u27BF]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]|[\uD83D][\uDE80-\uDEFF]/g, '').trim() : rec;
 
-        {insights.careerCoaching && insights.careerCoaching.careerPhases && Object.keys(insights.careerCoaching.careerPhases).length > 0 && (
-          <div className="insight-card career">
-            <h3>💼 Career Coaching</h3>
-            <div className="career-phases">
-              {Object.entries(insights.careerCoaching.careerPhases).map(([phase, data]) => (
-                <div key={phase} className="phase-card">
-                  <div className="phase-header">
-                    <h4 className="phase-name">{phase.charAt(0).toUpperCase() + phase.slice(1)} Phase</h4>
-                    <div className="phase-metrics">
-                      <span className="metric">⚡ {data.avgEnergy}/5</span>
-                      <span className="metric">📈 {data.avgProductivity}/5</span>
+              return (
+                <div key={index} className="recommendation-card-elegant">
+                  <div className="rec-icon">{emoji}</div>
+                  <p>{text}</p>
+                </div>
+              );
+            })
+          ) : (
+            <div className="empty-state">Keep logging to get personalized recommendations!</div>
+          )}
+        </div>
+      </div>
+
+      {insights.careerCoaching && insights.careerCoaching.careerPhases && Object.keys(insights.careerCoaching.careerPhases).length > 0 && (
+        <div className="career-coaching-section glass-card full-width">
+          <div className="section-header">
+             <div className="icon-circle icon-indigo">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <h3>Career Phase Optimization</h3>
+          </div>
+          
+          <div className="career-phases-elegant">
+            {Object.entries(insights.careerCoaching.careerPhases).map(([phase, data]) => (
+              <div key={phase} className={`phase-card-elegant phase-${phase}`}>
+                <div className="phase-card-inner">
+                  <div className="phase-header-elegant">
+                    <h4 className="phase-title">{phase}</h4>
+                    <div className="phase-metrics-elegant">
+                      <span className="metric-pill energy-pill">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        {data.avgEnergy}
+                      </span>
+                      <span className="metric-pill prod-pill">
+                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        {data.avgProductivity}
+                      </span>
                     </div>
                   </div>
-                  <p className="phase-description">{data.description}</p>
-                  <div className="optimal-activities">
-                    <p className="activity-label">Best for:</p>
-                    <ul>
+                  <p className="phase-description-elegant">{data.description}</p>
+                  
+                  <div className="activities-container">
+                    <span className="activities-label">Optimal for:</span>
+                    <div className="activities-tags">
                       {data.optimalActivities.map((activity, idx) => (
-                        <li key={idx}>{activity}</li>
+                        <span key={idx} className="activity-tag">{activity}</span>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="recommendations-section">
-        <h3>💡 Personalized Recommendations</h3>
-        <div className="recommendations">
-          {insights.recommendations && insights.recommendations.length > 0 ? (
-            insights.recommendations.map((rec, index) => (
-              <div key={index} className="recommendation-card">
-                <p>{rec}</p>
               </div>
-            ))
-          ) : (
-            <p className="no-data">Keep logging to get personalized recommendations!</p>
+            ))}
+          </div>
+
+          {insights.careerCoaching.optimalWorkTimes && insights.careerCoaching.optimalWorkTimes.length > 0 && (
+             <div className="optimal-work-timing">
+                <h4 className="sub-section-title">Schedule Highlights</h4>
+                <div className="timing-cards">
+                  {insights.careerCoaching.optimalWorkTimes.map((timing, index) => (
+                    <div key={`timing-${index}`} className="timing-card-elegant">
+                      <h5>{timing.activity}</h5>
+                      <span className={`timing-phase-badge phase-${timing.phase}`}>{timing.phase}</span>
+                      <p className="timing-reason-subtle">{timing.reasoning}</p>
+                    </div>
+                  ))}
+                </div>
+             </div>
           )}
         </div>
+      )}
 
-        {insights.careerCoaching && insights.careerCoaching.recommendations && insights.careerCoaching.recommendations.length > 0 && (
-          <div className="career-recommendations">
-            <h4>💼 Career Optimization Tips</h4>
-            <div className="recommendations">
-              {insights.careerCoaching.recommendations.map((rec, index) => (
-                <div key={`career-${index}`} className="recommendation-card career-rec">
-                  <p>{rec}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {insights.careerCoaching && insights.careerCoaching.optimalWorkTimes && insights.careerCoaching.optimalWorkTimes.length > 0 && (
-          <div className="work-timing">
-            <h4>⏰ Optimal Work Timing</h4>
-            <div className="timing-grid">
-              {insights.careerCoaching.optimalWorkTimes.map((timing, index) => (
-                <div key={`timing-${index}`} className="timing-card">
-                  <h5>{timing.activity}</h5>
-                  <p className="phase-timing">{timing.phase.charAt(0).toUpperCase() + timing.phase.slice(1)} Phase</p>
-                  <p className="timing-reason">{timing.reasoning}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="insights-summary">
-        <p>📊 Based on <strong>{insights.totalDaysLogged}</strong> days of logged data</p>
-      </div>
+      {cycleInfo && cycleInfo.isConfigured && (
+        <div className="insights-summary-elegant">
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9m-9 9a9 9 0 0 1 9-9"></path></svg>
+           <span>Based on <strong>{insights.totalDaysLogged}</strong> days of logged data syncing with your <strong>{cycleInfo.cycleLength}-day cycle</strong>.</span>
+        </div>
+      )}
     </div>
   );
 }
 
 function getMoodColor(mood) {
   const colors = {
-    calm: '#6bcf7f',
-    happy: '#9ccc65',
-    anxious: '#ffd93d',
-    sad: '#ff9800',
-    angry: '#ff6b6b',
-    sleepy: '#a855f7',
-    distracted: '#ff6b9d',
-    confused: '#64748b',
+    calm: '#34d399',      // mint green
+    happy: '#fbbf24',     // warm yellow
+    anxious: '#fb923c',   // soft orange
+    sad: '#60a5fa',       // soft blue
+    angry: '#ef4444',     // red
+    sleepy: '#c084fc',    // lavender
+    distracted: '#f472b6',// pink
+    confused: '#94a3b8',  // slate grey
     // Legacy support
-    great: '#6bcf7f',
-    good: '#9ccc65',
-    neutral: '#ffd93d',
-    low: '#ff9800',
-    irritable: '#ff6b6b'
+    great: '#34d399',
+    good: '#fde047',
+    neutral: '#94a3b8',
+    low: '#93c5fd',
+    irritable: '#f87171'
   };
-  return colors[mood] || '#999';
+  return colors[mood.toLowerCase()] || '#cbd5e1';
 }
 
 export default InsightsPanel;
