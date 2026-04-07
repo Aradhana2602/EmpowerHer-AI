@@ -31,6 +31,15 @@ function App() {
   const [streamlitOpened, setStreamlitOpened] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [appLoading, setAppLoading] = useState(true);
+
+  // ---------------- INITIAL LOADER ----------------
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAppLoading(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // ---------------- STREAMLIT ----------------
   useEffect(() => {
@@ -263,6 +272,26 @@ function App() {
   };
 
   // ---------------- ROUTES ----------------
+  if (appLoading) {
+    return (
+      <div style={{
+        height: '100vh', width: '100%', display: 'flex', flexDirection: 'column', 
+        justifyContent: 'center', alignItems: 'center', background: 'linear-gradient(135deg, #fdf2f8, #f0fdfa)'
+      }}>
+        <div style={{ 
+          width: '60px', height: '60px', border: '6px solid white', 
+          borderTop: '6px solid #f43f5e', borderRadius: '50%', animation: 'spin 1s linear infinite',
+          boxShadow: '0 4px 15px rgba(244, 63, 94, 0.2)'
+        }}></div>
+        <h2 style={{ color: '#1e293b', marginTop: '24px', fontWeight: 900, letterSpacing: '-0.5px' }}>BioBoundary</h2>
+        <p style={{ color: '#64748b', fontWeight: 600, marginTop: '8px' }}>Synchronizing Biological Framework...</p>
+        <style>{`
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        `}</style>
+      </div>
+    );
+  }
+
   if (showCycleSetup) {
     return (
       <div className="app-wrapper">
