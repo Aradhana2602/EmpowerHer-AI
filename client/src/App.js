@@ -278,15 +278,27 @@ function App() {
         height: '100vh', width: '100%', display: 'flex', flexDirection: 'column', 
         justifyContent: 'center', alignItems: 'center', background: 'linear-gradient(135deg, #fdf2f8, #f0fdfa)'
       }}>
-        <div style={{ 
-          width: '60px', height: '60px', border: '6px solid white', 
-          borderTop: '6px solid #f43f5e', borderRadius: '50%', animation: 'spin 1s linear infinite',
-          boxShadow: '0 4px 15px rgba(244, 63, 94, 0.2)'
-        }}></div>
-        <h2 style={{ color: '#1e293b', marginTop: '24px', fontWeight: 900, letterSpacing: '-0.5px' }}>BioBoundary</h2>
-        <p style={{ color: '#64748b', fontWeight: 600, marginTop: '8px' }}>Synchronizing Biological Framework...</p>
+        <div className="loader-avatar-container" style={{
+          width: '120px', height: '120px', borderRadius: '50%', background: '#ffffff',
+          boxShadow: '0 10px 25px rgba(244, 63, 94, 0.15)', display: 'flex', 
+          justifyContent: 'center', alignItems: 'center', overflow: 'hidden',
+          animation: 'floatBoi 2s ease-in-out infinite'
+        }}>
+          <img 
+            src="https://api.dicebear.com/7.x/lorelei/svg?seed=Jessica&backgroundColor=ffffff" 
+            alt="Loading Assistant" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
+        <h2 style={{ color: '#1e293b', marginTop: '24px', fontWeight: 900, letterSpacing: '-0.5px' }}>Empower Her</h2>
+        <p style={{ color: '#64748b', fontWeight: 600, marginTop: '8px', animation: 'pulseText 1.5s infinite' }}>Synchronizing Biological Framework...</p>
         <style>{`
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          @keyframes floatBoi { 
+            0% { transform: translateY(0px) scale(1); box-shadow: 0 10px 25px rgba(244, 63, 94, 0.15); } 
+            50% { transform: translateY(-15px) scale(1.02); box-shadow: 0 20px 30px rgba(244, 63, 94, 0.08); } 
+            100% { transform: translateY(0px) scale(1); box-shadow: 0 10px 25px rgba(244, 63, 94, 0.15); } 
+          }
+          @keyframes pulseText { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
         `}</style>
       </div>
     );
