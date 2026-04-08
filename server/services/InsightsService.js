@@ -8,9 +8,17 @@ class InsightsService {
     const avgEnergyLevel = logs.reduce((sum, log) => sum + log.energyLevel, 0) / logs.length;
     const avgProductivity = logs.reduce((sum, log) => sum + log.productivityRating, 0) / logs.length;
 
+    // Filter to only include logs from the last 30 days for "recent" peak energy days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentLogsOnly = logs.filter(log => new Date(log.date) >= thirtyDaysAgo);
+    
+    // Fallback to all logs if there are no logs in the last 30 days
+    const activeLogs = recentLogsOnly.length > 0 ? recentLogsOnly : logs;
+
     // Find best energy days
-    const maxEnergy = Math.max(...logs.map(log => log.energyLevel));
-    const bestEnergyDays = logs
+    const maxEnergy = Math.max(...activeLogs.map(log => log.energyLevel));
+    const bestEnergyDays = activeLogs
       .filter(log => log.energyLevel === maxEnergy)
       .map(log => new Date(log.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }))
       .slice(0, 3);
@@ -39,7 +47,9 @@ class InsightsService {
     const symptomFrequency = {};
     logs.forEach(log => {
       log.symptoms.forEach(symptom => {
-        symptomFrequency[symptom] = (symptomFrequency[symptom] || 0) + 1;
+        if (symptom && symptom.toLowerCase() !== 'none') {
+          symptomFrequency[symptom] = (symptomFrequency[symptom] || 0) + 1;
+        }
       });
     });
 

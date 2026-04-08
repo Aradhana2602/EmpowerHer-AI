@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek } from 'date-fns';
 import './Calendar.css';
 
-function Calendar({ selectedDate, onDateClick, isDateLogged, cycleInfo }) {
+function Calendar({ selectedDate, onDateClick, isDateLogged, cycleInfo, tasks }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const getPhase = (day) => {
@@ -71,6 +71,10 @@ function Calendar({ selectedDate, onDateClick, isDateLogged, cycleInfo }) {
               const isLogged = isDateLogged(day);
               const phase = getPhase(day);
               const phaseClass = phase ? `phase-${phase}` : '';
+              
+              // Find tasks for this day
+              const dayStr = new Date(day.getTime() - (day.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+              const dayTasks = tasks?.filter(t => t.date === dayStr) || [];
 
               return (
                 <button
@@ -80,6 +84,14 @@ function Calendar({ selectedDate, onDateClick, isDateLogged, cycleInfo }) {
                 >
                   <span className="day-number">{day.getDate()}</span>
                   {isLogged && <span className="logged-dot"></span>}
+                  
+                  {dayTasks.length > 0 && (
+                    <div className="task-indicators">
+                      {dayTasks.map((t, idx) => (
+                        <span key={idx} className={`task-dot ${t.effort}`} title={t.title}></span>
+                      ))}
+                    </div>
+                  )}
                 </button>
               );
             })}

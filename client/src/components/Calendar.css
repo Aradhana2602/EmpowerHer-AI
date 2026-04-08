@@ -229,3 +229,26 @@
 .legend-dot.phase-luteal-legend {
   background: #a855f7;
 }
+
+.task-indicators {
+  display: flex;
+  gap: 4px;
+  position: absolute;
+  top: 8px; /* Position little dots at the top */
+  right: 8px;
+}
+
+.task-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.task-dot.deep {
+  background-color: #ef4444; /* High energy / urgent red */
+}
+
+.task-dot.light {
+  background-color: #3b82f6; /* Low energy / chill blue */
+}

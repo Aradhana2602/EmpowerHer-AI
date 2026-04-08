@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './MeetingAssistant.css';
 
 function MeetingAssistant({ cyclePhase, logs }) {
@@ -12,46 +12,113 @@ function MeetingAssistant({ cyclePhase, logs }) {
   const [isListening, setIsListening] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState(null);
 
   const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const videoStreamRef = useRef(null);
+  const chunksRef = useRef([]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (videoStreamRef.current) {
+        videoStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (recordedVideoUrl) {
+        URL.revokeObjectURL(recordedVideoUrl);
+      }
+    };
+  }, [recordedVideoUrl]);
 
   // 🎤 START RECORDING
-  const startListening = () => {
+  const startListening = async () => {
+    // 1. Reset old states
+    if (recordedVideoUrl) URL.revokeObjectURL(recordedVideoUrl);
+    setRecordedVideoUrl(null);
+    chunksRef.current = [];
+    setInput('');
+    setAnalyzed(false);
+
+    // 2. Request Screen Sharing
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        // Sometimes audio is restricted depending on the browser, but we request it
+        audio: true
+      });
+      videoStreamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        setRecordedVideoUrl(url);
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+
+      // Listen for user terminating screen share directly from browser OS UI
+      stream.getVideoTracks()[0].onended = () => {
+        stopListening();
+      };
+
+    } catch (err) {
+      console.error("Screen recording access denied or not supported.", err);
+      // We can still fallback to only transcript if screen share fails or is canceled.
+      alert("Screen sharing canceled or failed. You can still use the transcript AI.");
+    }
+
+    // 3. Start Speech recognition for AI transcription parallel
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
-      alert("Speech recognition not supported in this browser");
-      return;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript + " ";
+        }
+        setInput(transcript);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+      recognitionRef.current = recognition;
+    } else {
+      setIsListening(true); // Indicate recording if Speech API missing
     }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-    
-
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript + " ";
-      }
-      setInput(transcript);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.start();
-    recognitionRef.current = recognition;
   };
 
   // 🛑 STOP RECORDING
   const stopListening = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    
+    if (videoStreamRef.current) {
+      videoStreamRef.current.getTracks().forEach(track => track.stop());
+    }
+
     recognitionRef.current?.stop();
     setIsListening(false);
   };
@@ -149,18 +216,26 @@ function MeetingAssistant({ cyclePhase, logs }) {
       <div className="voice-controls">
         {!isListening ? (
           <button className="voice-btn" onClick={startListening}>
-            🎙️ Start Recording
+            🎙️ Share Screen & Record
           </button>
         ) : (
           <button className="voice-btn listening" onClick={stopListening}>
-            🔴 Listening... Click to Stop
+            🔴 Recording... Click to Stop
           </button>
         )}
       </div>
 
+      {/* 🔴 RECORDED VIDEO PREVIEW */}
+      {recordedVideoUrl && !isListening && (
+        <div className="video-playback-container" style={{ margin: '15px 0', padding: '15px', background: '#f8fafc', borderRadius: '15px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.1rem', color: '#1e293b' }}>📹 Meeting Recording</h3>
+          <video src={recordedVideoUrl} controls style={{ width: '100%', borderRadius: '12px', border: '1px solid #cbd5e1' }} />
+        </div>
+      )}
+
       {/* TEXT INPUT */}
       <textarea
-        placeholder="Speak or paste your meeting notes here to extract biological insights..."
+        placeholder="Transcript will appear here, or you can paste notes natively..."
         value={input}
         onChange={(e) => setInput(e.target.value)}
         disabled={isAnalyzing}
@@ -168,7 +243,7 @@ function MeetingAssistant({ cyclePhase, logs }) {
 
       {/* ANALYZE BUTTON */}
       {!isAnalyzing && !analyzed && (
-        <button className="analyze-btn" onClick={handleAnalyze} disabled={!input.trim()}>
+        <button className="analyze-btn" onClick={handleAnalyze} disabled={!input.trim() && !recordedVideoUrl}>
           Generate AI Breakdown
         </button>
       )}
@@ -177,15 +252,15 @@ function MeetingAssistant({ cyclePhase, logs }) {
       {isAnalyzing && (
         <div className="loading-state">
           <div className="spinner"></div>
-          <p>Analyzing NLP syntax & biological alignment...</p>
+          <p>Analyzing context & biological alignment...</p>
         </div>
       )}
 
       {/* 📊 OUTPUT GRID */}
       {!isAnalyzing && analyzed && (
         <>
-          <button className="analyze-btn" onClick={() => { setAnalyzed(false); setInput(''); }}>
-            Clear & Start New
+          <button className="analyze-btn" onClick={() => { setAnalyzed(false); setInput(''); setRecordedVideoUrl(null); }}>
+            Clear Transcription
           </button>
           
           <div className="output-grid">

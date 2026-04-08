@@ -5,7 +5,7 @@ const pdfParse = pdfParseModule.default || pdfParseModule;
 const mammoth = require('mammoth');
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'fake-key', // Prevent crash on startup if missing
 });
 
 class ResumeService {
