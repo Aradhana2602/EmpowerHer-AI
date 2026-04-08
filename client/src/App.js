@@ -83,12 +83,7 @@ function App() {
       await fetchCycleInfo();
       setShowCycleSetup(false);
     } catch (error) {
-      console.error('Error saving cycle info:', error);
-      if (error.code === 'ERR_NETWORK') {
-        alert('Server connection failed. Ensure your backend server is running on port 5000!');
-      } else {
-        alert('Failed to save cycle setup. Please try again.');
-      }
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -118,26 +113,15 @@ function App() {
       fetchCyclePhase();
     }
   }, [cycleInfo, fetchPredictedDays, fetchCyclePhase]);
-  
 
-  // ---------------- LOGGING ----------------
   const handleLogSubmit = async (data) => {
     try {
       setLoading(true);
-      const dateStr = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      const dateStr = selectedDate.toISOString().split('T')[0];
       const res = await axios.post(`${API_URL}/logs`, { date: dateStr, ...data });
-
-      const updated = logs.filter(l => l.date !== dateStr);
-      updated.push(res.data);
-      setLogs(updated);
-
-      if (!loggedDates.includes(selectedDate.toDateString())) {
-        setLoggedDates([...loggedDates, selectedDate.toDateString()]);
-      }
-      alert('Day logged successfully!');
+      setLogs([...logs, res.data]);
     } catch (e) {
-      console.error('Failed to log day:', e);
-      alert('Failed to save log. Make sure backend is running.');
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -217,7 +201,6 @@ function App() {
     return `👍 Scheduled: ${formatted} (Pacing)`;
   };
 
-  // ---------------- INSIGHTS ----------------
   const handleGetInsights = async () => {
     try {
       setLoading(true);
@@ -225,29 +208,18 @@ function App() {
       setInsights(res.data);
       setShowInsights(true);
     } catch (e) {
-      if (e.response && e.response.status === 400) {
-        alert(e.response.data.error || "Need more data for insights.");
-      } else {
-        console.error(e);
-        alert('Failed to load AI Insights.');
-      }
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- NOTIFICATIONS ----------------
   useEffect(() => {
     let notes = [];
-
-    if (cyclePhase?.typicalEnergy >= 4)
-      notes.push("⚡ High energy — do important work");
-
-    if (cyclePhase?.typicalEnergy <= 2)
-      notes.push("💤 Low energy — rest");
-
+    if (cyclePhase?.typicalEnergy >= 4) notes.push("High energy");
+    if (cyclePhase?.typicalEnergy <= 2) notes.push("Low energy");
     setNotifications(notes);
-  }, [logs, cyclePhase]);
+  }, [cyclePhase]);
 
   // ---------------- HELPER METHODS ----------------
   const getCycleProgress = () => {
@@ -305,8 +277,12 @@ function App() {
   }
 
   if (showCycleSetup) {
+    return <CycleSetup onSubmit={handleCycleSetupSubmit} loading={loading} />;
+  }
+
+  if (currentPage === 'meeting') {
     return (
-      <div className="app-wrapper">
+      <div>
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <div className="app-container">
           <header className="app-header">
@@ -314,14 +290,14 @@ function App() {
             <p>Let's train your AI with your cycle information</p>
           </header>
           <main className="app-main" style={{ display: 'block' }}>
-            <CycleSetup onSubmit={handleCycleSetupSubmit} loading={loading} />
+            <<MeetingAssistant cyclePhase={cyclePhase} logs={logs} />
           </main>
         </div>
       </div>
     );
   }
 
-  if (currentPage === 'meeting') {
+  if (currentPage === 'safety') {
     return (
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
@@ -357,24 +333,16 @@ function App() {
     return (
       <div className="app-wrapper">
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <div className="app-container">
-          <main className="app-main" style={{ display: 'block' }}>
-            <CopilotPanel cyclePhase={cyclePhase} />
-          </main>
-        </div>
+        <CopilotPanel />
       </div>
     );
   }
 
   if (currentPage === 'resume') {
     return (
-      <div className="app-wrapper">
+      <div>
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <div className="app-container">
-          <main className="app-main" style={{ display: 'block' }}>
-            <ResumeEvaluator />
-          </main>
-        </div>
+        <ResumeEvaluator />
       </div>
     );
   }
@@ -441,25 +409,21 @@ function App() {
               tasks={tasks}
             />
 
-            <button className="insights-btn" onClick={handleGetInsights}>
-              🧠 Insights
-            </button>
-            <button className="insights-btn" style={{ marginTop: '15px', background: '#fdf2f8', border: '2px solid #fbcfe8' }} onClick={() => setShowCycleSetup(true)}>
-              ⚙️ Edit Cycle Setup
-            </button>
-          </div>
+          {!showInsights ? (
+            <LoggingForm onSubmit={handleLogSubmit} />
+          ) : (
+            <InsightsPanel 
+              insights={insights} 
+              cycleInfo={cycleInfo} 
+              onBack={() => setShowInsights(false)} 
+            />
+          )}
 
-          <div className="center-panel">
-            {!showInsights ? (
-              <LoggingForm onSubmit={handleLogSubmit} />
-            ) : (
-              <InsightsPanel 
-                insights={insights} 
-                cycleInfo={cycleInfo} 
-                onBack={() => setShowInsights(false)} 
-              />
-            )}
-          </div>
+          <TaskPlanner
+            tasks={tasks}
+            addTask={addTask}
+            suggestBestTime={suggestBestTime}
+          />
 
           <div className="right-panel">
             <TaskPlanner
@@ -468,6 +432,8 @@ function App() {
               suggestBestTime={suggestBestTime}
             />
           </div>
+          <button onClick={handleGetInsights}>Get Insights</button>
+
         </main>
 
         <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
